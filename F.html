@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<svg id="svg" viewBox="-500 -500 1000 1000">
+    <g id="transformed" fill="red" fill-opacity="0.5" />
+    <g fill="yellow" fill-opacity="0.5">
+        <polygon id="pentagon" stroke="black" stroke-width="1mm" />
+    </g>
+    <g id="vertices" />
+</svg>
+<script src="common.js"></script>
+<script>
+pentagons({
+    r: ray2ray(dots[0], dots[4], dots[0], dots[1]),
+    R: ray2ray(dots[0], dots[1], dots[0], dots[4]),
+    s: ray2ray(dots[1], dots[2], dots[1], dots[0]),
+    S: ray2ray(dots[1], dots[0], dots[1], dots[2]),
+    t: ray2ray(dots[3], dots[4], dots[3], dots[2]),
+    T: ray2ray(dots[3], dots[2], dots[3], dots[4]),
+}, [
+    "r",
+    "rt",
+    "R",
+    "RS",
+    "Rt",
+    "Rtt",
+    "s",
+    "sr",
+    "S",
+    "ST",
+    "STS",
+    "STSt",
+    "STST",
+    "t",
+    "tS",
+    "tSt",
+    "tStt",
+    "T",
+    "Tr",
+    "Trt",
+]);
+</script>
