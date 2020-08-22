@@ -191,7 +191,8 @@ for (let i = 0; i < 5; i++) {
     circle.setAttribute("r", "3mm");
     vertices.appendChild(circle);
     const angle = (i/5 - 1/4)*2*Math.PI;
-    const dot = new Store({x: 60*Math.cos(angle), y: 60*Math.sin(angle)});
+    const radius = 90;
+    const dot = new Store({x: radius*Math.cos(angle), y: radius*Math.sin(angle)});
     dots.push(dot);
     centre(dot, circle);
     circle.addEventListener("mousedown", startDragging(dot), false);
