@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<svg id="svg" viewBox="-500 -500 1000 1000">
+    <g id="transformed" fill="lime" fill-opacity="0.5" />
+    <g fill="fuchsia" fill-opacity="0.5">
+        <polygon id="pentagon" stroke="black" stroke-width="1mm" />
+    </g>
+    <g id="vertices" />
+</svg>
+<script src="common.js"></script>
+<script>
+
+const edges = [{
+    R: { dx: 1, dy: 1 },
+    z: { dx: 0, dy: 1 },
+    Y: { dx: -1, dy: 0 },
+    s: { dx: 0, dy: -1 },
+    r: { dx: 1, dy: -1 },
+}];
+for (let rotation = 1; rotation < 4; rotation++) {
+    let prev = edges[edges.length - 1];
+    const next = {};
+    for (const xfm in prev) {
+        const e = prev[xfm];
+        next[xfm] = { dx: -e.dy, dy: e.dx };
+    }
+    edges.push(next);
+}
+
+function edgesFrom(p) {
+    let rotation = (p.x + 2*p.y) % 5;
+    if (rotation < 0) rotation += 5;
+    if (rotation == 4) rotation = 1;
+    const rotated = edges[rotation];
+    const outEdges = {}
+    for (const xfm in rotated) {
+        let e = rotated[xfm]
+        outEdges[xfm] = { x: p.x + e.dx, y: p.y + e.dy };
+    }
+    return outEdges;
+}
+
+function inBounds(p) {
+    const u = p.x + 2*p.y;
+    const v = -2*p.x + p.y;
+    return -6 <= u && u < 6 && -6 <= v && v < 6;
+}
+
+const paths = (function () {
+    const seen = [];
+    function haveSeen(node) {
+        for (const seenNode of seen) {
+            if (seenNode.x === node.x && seenNode.y === node.y)
+                return true;
+        }
+        return false;
+    }
+    const queue = [{"": { x: 0, y: 0 }}];
+    const paths = [];
+    while (queue.length > 0) {
+        const fan = queue.shift();
+        const fanPaths = Object.keys(fan);
+        if (fanPaths.length == 0)
+            continue;
+        const candidatePath = fanPaths.shift();
+        const candidateNode = fan[candidatePath];
+        if (fanPaths.length > 0) {
+            delete fan[candidatePath];
+            queue.push(fan);
+        }
+        if (!inBounds(candidateNode))
+            continue;
+        if (haveSeen(candidateNode))
+            continue;
+        paths.push(candidatePath);
+        seen.push(candidateNode);
+        const children = edgesFrom(candidateNode);
+        const newNodes = {};
+        for (const xfm in children)
+            newNodes[candidatePath + xfm] = children[xfm];
+        queue.push(newNodes);
+    }
+    paths.shift();
+    return paths;
+})();
+
+pentagons({
+    x: ray2ray(dots[4], dots[0], dots[1], dots[0]),
+    r: ray2ray(dots[0], dots[4], dots[0], dots[1]),
+    R: ray2ray(dots[0], dots[1], dots[0], dots[4]),
+    X: ray2ray(dots[1], dots[0], dots[4], dots[0]),
+    y: ray2ray(dots[3], dots[2], dots[1], dots[2]),
+    s: ray2ray(dots[2], dots[3], dots[2], dots[1]),
+    S: ray2ray(dots[2], dots[1], dots[2], dots[3]),
+    Y: ray2ray(dots[1], dots[2], dots[3], dots[2]),
+    z: rotate180(dots[3], dots[4]),
+}, paths);
+</script>
