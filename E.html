@@ -36,21 +36,12 @@ edgesByClass[2] = apply(baseEdges, [negate]);
 edgesByClass[6] = apply(baseEdges, [negate, swap]);
 edgesByClass[8] = apply(baseEdges, [swap]);
 
-function mod(a, b) {
-    let r = a % b;
-    if (r < 0) r += b;
-    return r;
-}
-
 function edgesFrom(p) {
     const edges = edgesByClass[mod(p.y - p.x, 12)];
     const outEdges = {}
-    const log = p.x == 3 && p.y == -3;
-    console.log(p, log, edges);
     for (const xfm in edges) {
         const e = edges[xfm];
         const neighbour = { x: p.x + e.dx, y: p.y + e.dy };
-        if (log) console.log(xfm, neighbour, inBounds(neighbour));
         if (inBounds(neighbour))
             outEdges[xfm] = neighbour;
     }
@@ -63,68 +54,6 @@ function inBounds(p) {
     return -16 <= u && u < 14 && Math.abs(v) <= 16;
 }
 
-function best(arr, score) {
-    let bestItem = arr[0];
-    let bestScore = score(bestItem);
-    for (let i = 1; i < arr.length; i++) {
-        const newScore = score(arr[i]);
-        if (newScore > bestScore) {
-            bestItem = arr[i];
-            bestScore = newScore;
-        }
-    }
-    return bestItem;
-}
-
-function pathQuality(path) {
-    let quality = 0;
-    for (let i = 0; i < path.length-1; i++)
-        if (path.charAt(i) == path.charAt(i+1))
-            quality--;
-    const arr = Array.from(path);
-    arr.sort();
-    for (let i = 0; i < arr.length-1; i++)
-        if (arr[i] != arr[i+1])
-            quality++;
-    return quality;
-}
-
-const paths = (function () {
-    const seen = [];
-    function haveSeen(node) {
-        for (const seenNode of seen) {
-            if (seenNode.x === node.x && seenNode.y === node.y)
-                return true;
-        }
-        return false;
-    }
-    const queue = [{"": { x: 0, y: 0 }}];
-    const paths = [];
-    while (queue.length > 0) {
-        const fan = queue.shift();
-        const fanPaths = Object.keys(fan);
-        if (fanPaths.length == 0)
-            continue;
-        const candidatePath = best(fanPaths, pathQuality);
-        const candidateNode = fan[candidatePath];
-        if (fanPaths.length > 1) {
-            delete fan[candidatePath];
-            queue.push(fan);
-        }
-        if (haveSeen(candidateNode))
-            continue;
-        paths.push(candidatePath);
-        seen.push(candidateNode);
-        const children = edgesFrom(candidateNode);
-        const newNodes = {};
-        for (const xfm in children)
-            newNodes[candidatePath + xfm] = children[xfm];
-        queue.push(newNodes);
-    }
-    paths.shift();
-    return paths;
-})();
-
 pentagons({
     f: rotate180(dots[0], dots[1]),
     a: ray2rayflip(dots[3], dots[4], dots[1], dots[2]),
@@ -132,6 +61,6 @@ pentagons({
     h: ray2rayflip(dots[3], dots[2], dots[0], dots[4]),
     r: ray2rayflip(dots[1], dots[2], dots[3], dots[4]),
     R: ray2rayflip(dots[2], dots[1], dots[4], dots[3]),
-}, paths);
+}, paths(edgesFrom));
 
 </script>

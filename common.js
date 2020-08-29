@@ -1,3 +1,22 @@
+function mod(a, b) {
+    let r = a % b;
+    if (r < 0) r += b;
+    return r;
+}
+
+function best(arr, score) {
+    let bestItem = arr[0];
+    let bestScore = score(bestItem);
+    for (let i = 1; i < arr.length; i++) {
+        const newScore = score(arr[i]);
+        if (newScore > bestScore) {
+            bestItem = arr[i];
+            bestScore = newScore;
+        }
+    }
+    return bestItem;
+}
+
 const SVGNS = "http://www.w3.org/2000/svg";
 
 const dragging = {dx: 0, dy: 0, target: null};
@@ -224,4 +243,53 @@ function pentagons(xfm, specs) {
         xy(labelLocation, text);
         visibility(labelsVisible, text);
     }
+}
+
+function pathQuality(path) {
+    let quality = 0;
+    for (let i = 0; i < path.length-1; i++)
+        if (path.charAt(i) == path.charAt(i+1))
+            quality--;
+    const arr = Array.from(path);
+    arr.sort();
+    for (let i = 0; i < arr.length-1; i++)
+        if (arr[i] != arr[i+1])
+            quality++;
+    return quality;
+}
+
+function paths(edgesFrom) {
+    const seen = [];
+    function haveSeen(node) {
+        for (const seenNode of seen) {
+            if (seenNode.x === node.x && seenNode.y === node.y)
+                return true;
+        }
+        return false;
+    }
+    const queue = [{"": { x: 0, y: 0 }}];
+    const paths = [];
+    while (queue.length > 0) {
+        const fan = queue.shift();
+        const fanPaths = Object.keys(fan);
+        if (fanPaths.length == 0)
+            continue;
+        const candidatePath = best(fanPaths, pathQuality);
+        const candidateNode = fan[candidatePath];
+        if (fanPaths.length > 1) {
+            delete fan[candidatePath];
+            queue.push(fan);
+        }
+        if (haveSeen(candidateNode))
+            continue;
+        paths.push(candidatePath);
+        seen.push(candidateNode);
+        const children = edgesFrom(candidateNode);
+        const newNodes = {};
+        for (const xfm in children)
+            newNodes[candidatePath + xfm] = children[xfm];
+        queue.push(newNodes);
+    }
+    paths.shift();
+    return paths;
 }
