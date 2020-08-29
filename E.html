@@ -10,6 +10,50 @@
 </svg>
 <script src="common.js"></script>
 <script>
+
+const baseEdges = {
+    f: { dx: 3, dy: 5 },
+    a: { dx: 6, dy: 2 },
+    c: { dx: 3, dy: -3 },
+    h: { dx: -3, dy: 3 },
+    r: { dx: -2, dy: -6 },
+    R: { dx: -2, dy: -6 },
+};
+function negate(v) { return { dx: -v.dx, dy: -v.dy }; }
+function swap(v) { return { dx: v.dy, dy: v.dx }; }
+function apply(vs, fs) {
+    const result = {};
+    for (const k in vs) {
+        let v = vs[k];
+        for (const f of fs) v = f(v);
+        result[k] = v;
+    }
+    return result;
+}
+const edgesByClass = [];
+edgesByClass[0] = apply(baseEdges, []);
+edgesByClass[2] = apply(baseEdges, [negate]);
+edgesByClass[6] = apply(baseEdges, [negate, swap]);
+edgesByClass[8] = apply(baseEdges, [swap]);
+
+function edgesFrom(p) {
+    const edges = edgesByClass[mod(p.y - p.x, 12)];
+    const outEdges = {}
+    for (const xfm in edges) {
+        const e = edges[xfm];
+        const neighbour = { x: p.x + e.dx, y: p.y + e.dy };
+        if (inBounds(neighbour))
+            outEdges[xfm] = neighbour;
+    }
+    return outEdges;
+}
+
+function inBounds(p) {
+    const u = p.y - p.x;
+    const v = p.x + p.y;
+    return -16 <= u && u < 14 && Math.abs(v) <= 16;
+}
+
 pentagons({
     f: rotate180(dots[0], dots[1]),
     a: ray2rayflip(dots[3], dots[4], dots[1], dots[2]),
@@ -17,30 +61,6 @@ pentagons({
     h: ray2rayflip(dots[3], dots[2], dots[0], dots[4]),
     r: ray2rayflip(dots[1], dots[2], dots[3], dots[4]),
     R: ray2rayflip(dots[2], dots[1], dots[4], dots[3]),
-}, [
-    "f",
-    "fc",
-    "fca",
-    "fR",
-    "fRc",
-    "a",
-    "af",
-    "afc",
-    "c",
-    "ca",
-    "caf",
-    "cah",
-    "cr",
-    "crf",
-    "crfa",
-    "h",
-    "hf",
-    "hfR",
-    "hfRc",
-    "hh",
-    "R",
-    "Rc",
-    "Rr",
-    "Rrc",
-]);
+}, paths(edgesFrom));
+
 </script>

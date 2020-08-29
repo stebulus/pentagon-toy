@@ -29,14 +29,15 @@ for (let rotation = 1; rotation < 4; rotation++) {
 }
 
 function edgesFrom(p) {
-    let rotation = (p.x + 2*p.y) % 5;
-    if (rotation < 0) rotation += 5;
+    let rotation = mod(p.x + 2*p.y, 5);
     if (rotation == 4) rotation = 1;
     const rotated = edges[rotation];
     const outEdges = {}
     for (const xfm in rotated) {
-        let e = rotated[xfm]
-        outEdges[xfm] = { x: p.x + e.dx, y: p.y + e.dy };
+        const v = rotated[xfm]
+        const neighbour = { x: p.x + v.dx, y: p.y + v.dy };
+        if (inBounds(neighbour))
+            outEdges[xfm] = neighbour;
     }
     return outEdges;
 }
@@ -46,44 +47,6 @@ function inBounds(p) {
     const v = -2*p.x + p.y;
     return -6 <= u && u < 6 && -6 <= v && v < 6;
 }
-
-const paths = (function () {
-    const seen = [];
-    function haveSeen(node) {
-        for (const seenNode of seen) {
-            if (seenNode.x === node.x && seenNode.y === node.y)
-                return true;
-        }
-        return false;
-    }
-    const queue = [{"": { x: 0, y: 0 }}];
-    const paths = [];
-    while (queue.length > 0) {
-        const fan = queue.shift();
-        const fanPaths = Object.keys(fan);
-        if (fanPaths.length == 0)
-            continue;
-        const candidatePath = fanPaths.shift();
-        const candidateNode = fan[candidatePath];
-        if (fanPaths.length > 0) {
-            delete fan[candidatePath];
-            queue.push(fan);
-        }
-        if (!inBounds(candidateNode))
-            continue;
-        if (haveSeen(candidateNode))
-            continue;
-        paths.push(candidatePath);
-        seen.push(candidateNode);
-        const children = edgesFrom(candidateNode);
-        const newNodes = {};
-        for (const xfm in children)
-            newNodes[candidatePath + xfm] = children[xfm];
-        queue.push(newNodes);
-    }
-    paths.shift();
-    return paths;
-})();
 
 pentagons({
     x: ray2ray(dots[4], dots[0], dots[1], dots[0]),
@@ -95,5 +58,5 @@ pentagons({
     S: ray2ray(dots[2], dots[1], dots[2], dots[3]),
     Y: ray2ray(dots[1], dots[2], dots[3], dots[2]),
     z: rotate180(dots[3], dots[4]),
-}, paths);
+}, paths(edgesFrom));
 </script>

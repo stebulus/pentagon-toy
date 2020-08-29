@@ -10,33 +10,42 @@
 </svg>
 <script src="common.js"></script>
 <script>
+
+const edges = {
+    h: { dx: 1, dy: 0 },
+    v: { dx: 0, dy: 3 },
+    u: { dx: 0, dy: -3 },
+    a: { dx: -1, dy: -1 },
+    b: { dx: -1, dy: 2 },
+};
+const edgesFlipped = {};
+for (const xfm in edges) {
+    const e = edges[xfm];
+    edgesFlipped[xfm] = { dx: -e.dx, dy: -e.dy };
+}
+
+function edgesFrom(p) {
+    const flipped = p.x % 2 == 0 ? edges : edgesFlipped;
+    const outEdges = {}
+    for (const xfm in flipped) {
+        const e = flipped[xfm];
+        const neighbour = { x: p.x + e.dx, y: p.y + e.dy };
+        if (inBounds(neighbour))
+            outEdges[xfm] = neighbour;
+    }
+    return outEdges;
+}
+
+function inBounds(p) {
+    return -2 <= p.x && p.x <= 2 && -7 <= p.y && p.y <= 7;
+}
+
 pentagons({
-    a: rotate180(dots[4], dots[0]),
-    b: rotate180(dots[0], dots[1]),
+    a: rotate180(dots[0], dots[1]),
+    b: rotate180(dots[4], dots[0]),
     h: rotate180(dots[2], dots[3]),
     u: ray2ray(dots[4], dots[3], dots[1], dots[2]),
     v: ray2ray(dots[1], dots[2], dots[4], dots[3]),
-}, [
-    "a",
-    "ah",
-    "ahv",
-    "ahu",
-    "b",
-    "h",
-    "ha",
-    "hb",
-    "hu",
-    "hub",
-    "v",
-    "va",
-    "vv",
-    "vvh",
-    "u",
-    "ub",
-    "ubh",
-    "uu",
-    "uuh",
-    "uuhb",
-    "uuhba",
-]);
+}, paths(edgesFrom));
+
 </script>
