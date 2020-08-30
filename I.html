@@ -2,8 +2,8 @@
 <meta charset="utf-8">
 <link rel="stylesheet" type="text/css" href="style.css" />
 <svg id="svg" viewBox="-500 -500 1000 1000">
-    <g id="transformed" fill="red" fill-opacity="0.5" />
-    <g fill="yellow" fill-opacity="0.5">
+    <g id="transformed" fill-opacity="0.5" />
+    <g id="pentagon-g" fill-opacity="0.5">
         <polygon id="pentagon" stroke="black" stroke-width="1mm" />
     </g>
     <g id="vertices" />
@@ -75,5 +75,5 @@ pentagons({
     U: ray2ray(dots[4], dots[3], dots[2], dots[3]),
     v: ray2ray(dots[3], dots[2], dots[3], dots[4]),
     V: ray2ray(dots[2], dots[3], dots[4], dots[3]),
-}, paths(pt(0, 2), edgesFrom));
+}, paths(pt(0, 2), edgesFrom), 300);
 </script>

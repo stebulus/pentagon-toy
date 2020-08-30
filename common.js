@@ -373,8 +373,11 @@ polygon(dots, document.querySelector("#pentagon"));
 const labelsVisible = new Store(false);
 const labelLocation = centroid(dots);
 
-function pentagons(xfm, specs) {
+function pentagons(xfm, specs, hue) {
+    const pentagong = document.querySelector("#pentagon-g");
+    pentagong.setAttribute("fill", "hsl(" + ((hue+180) % 360) + " 100% 50%)");
     const transformed = document.querySelector("#transformed");
+    transformed.setAttribute("fill", "hsl(" + hue + " 100% 50%)");
     for (const spec of specs) {
         let base = transformed;
         for (const c of spec) {
