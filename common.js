@@ -142,6 +142,10 @@ Vector.prototype.dot = function (v) {
     return this.dx.mul(v.dx).add(this.dy.mul(v.dy));
 };
 
+Vector.prototype.normsq = function () {
+    return this.dot(this);
+};
+
 function Point(x, y) {
     this.x = x;
     this.y = y;
@@ -157,6 +161,10 @@ Point.prototype.equals = function (q) {
 
 Point.prototype.to = function (q) {
     return new Vector(q.x.sub(this.x), q.y.sub(this.y));
+};
+
+Point.prototype.fromOrigin = function () {
+    return new Vector(this.x, this.y);
 };
 
 Point.prototype.translate = function (v) {

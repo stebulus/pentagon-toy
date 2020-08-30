@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<svg id="svg" viewBox="-500 -500 1000 1000">
+    <g id="transformed" fill="red" fill-opacity="0.5" />
+    <g fill="yellow" fill-opacity="0.5">
+        <polygon id="pentagon" stroke="black" stroke-width="1mm" />
+    </g>
+    <g id="vertices" />
+</svg>
+<script src="common.js"></script>
+<script>
+
+function num(n) { return new NumRoot3(n); }
+function r3(n) { return new NumRoot3(0, n); }
+function vec(dx, dy) { return new Vector(num(dx), num(dy)); }
+function pt(x, y) { return new Point(num(x), num(y)); }
+
+function rot60(v) {
+    return new Vector(
+        v.dx.add(v.dy.mul(r3(-1))),
+        v.dx.mul(r3(1)).add(v.dy)
+    ).scale(0.5);
+}
+
+const edges = iterate({
+    r: vec(0, 2),
+    R: vec(0, 2),
+    s: new Vector(r3(-1), num(1)),
+    S: new Vector(r3(-1), num(1)),
+    m: new Vector(r3(1), num(1)),
+    u: new Vector(r3(1), num(-1)),
+    U: new Vector(r3(1), num(-1)),
+    v: new Vector(r3(-1), num(-1)),
+    V: new Vector(r3(-1), num(-1)),
+}, onValues(rot60), 6);
+
+function inBounds(p) {
+    return decompose(p).hub.fromOrigin().normsq().toNumber() <= 28;
+}
+
+function decompose(p) {
+    const q = new Vector(
+        p.x.mul(r3(5)).sub(p.y.mul(num(3))),
+        p.x.mul(r3(-1)).add(p.y.mul(num(9)))
+    ).scale(1/42);
+    const qz = vec(Math.round(q.dx.toNumber()), Math.round(q.dy.toNumber()));
+    const hub = new Point(
+        qz.dx.mul(r3(3)).add(qz.dy.mul(r3(1))),
+        qz.dx.add(qz.dy.mul(num(5))),
+    )
+    return { hub: hub, spoke: hub.to(p) };
+}
+
+function edgesFrom(p) {
+    const dec = decompose(p);
+    const rots = mod(-iterate(dec.spoke, rot60, 6).findIndex(function (v) { return v.equals(vec(0, 2)); }), 6);
+    const rotated = edges[rots];
+    const outEdges = {}
+    for (const xfm in rotated) {
+        const neighbour = p.translate(rotated[xfm]);
+        if (inBounds(neighbour))
+            outEdges[xfm] = neighbour;
+    }
+    return outEdges;
+}
+
+pentagons({
+    r: ray2ray(dots[0], dots[4], dots[0], dots[1]),
+    R: ray2ray(dots[4], dots[0], dots[1], dots[0]),
+    s: ray2ray(dots[0], dots[1], dots[0], dots[4]),
+    S: ray2ray(dots[1], dots[0], dots[4], dots[0]),
+    m: rotate180(dots[1], dots[2]),
+    u: ray2ray(dots[3], dots[4], dots[3], dots[2]),
+    U: ray2ray(dots[4], dots[3], dots[2], dots[3]),
+    v: ray2ray(dots[3], dots[2], dots[3], dots[4]),
+    V: ray2ray(dots[2], dots[3], dots[4], dots[3]),
+}, paths(pt(0, 2), edgesFrom));
+</script>
