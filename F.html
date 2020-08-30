@@ -10,6 +10,51 @@
 </svg>
 <script src="common.js"></script>
 <script>
+
+function num(n) { return new NumRoot3(n); }
+function vec(dx, dy) { return new Vector(num(dx), num(dy)); }
+function pt(x, y) { return new Point(num(x), num(y)); }
+
+const R3 = new NumRoot3(0, 1);
+const R3N = R3.negate();
+
+function rot120(v) {
+    return new Vector(
+        v.dx.negate().add(v.dy.mul(R3N)),
+        v.dx.mul(R3).sub(v.dy)
+    ).scale(0.5);
+}
+
+const edges = iterate({
+    r: new Vector(num(1), R3),
+    R: new Vector(num(-1), R3),
+    s: new Vector(num(2), num(0)),
+    S: new Vector(num(1), R3N),
+    t: new Vector(num(-1), R3N),
+    T: new Vector(num(-2), num(0)),
+}, onValues(rot120), 3);
+
+function inBounds(p) {
+    const pvec = pt(0, 0).to(p);
+    const u = pvec.dx.toNumber();
+    const v = pvec.dot(new Vector(num(1), R3)).toNumber();
+    const w = pvec.dot(new Vector(num(-1), R3)).toNumber();
+    return -6 < u && u < 4 && -11 < v && v < 7 && -9 < w && w < 9;
+}
+
+function edgesFrom(p) {
+    const q = new Vector(p.x.mul(R3).sub(p.y), p.y.mul(num(2))).scale(R3).scale(1/6);
+    const rotation = mod(q.dy.sub(q.dx).toNumber(), 3);
+    const rotated = edges[rotation];
+    const outEdges = {}
+    for (const xfm in rotated) {
+        const neighbour = p.translate(rotated[xfm]);
+        if (inBounds(neighbour))
+            outEdges[xfm] = neighbour;
+    }
+    return outEdges;
+}
+
 pentagons({
     r: ray2ray(dots[0], dots[4], dots[0], dots[1]),
     R: ray2ray(dots[0], dots[1], dots[0], dots[4]),
@@ -17,26 +62,5 @@ pentagons({
     S: ray2ray(dots[1], dots[0], dots[1], dots[2]),
     t: ray2ray(dots[3], dots[4], dots[3], dots[2]),
     T: ray2ray(dots[3], dots[2], dots[3], dots[4]),
-}, [
-    "r",
-    "rt",
-    "R",
-    "RS",
-    "Rt",
-    "Rtt",
-    "s",
-    "sr",
-    "S",
-    "ST",
-    "STS",
-    "STSt",
-    "STST",
-    "t",
-    "tS",
-    "tSt",
-    "tStt",
-    "T",
-    "Tr",
-    "Trt",
-]);
+}, paths(pt(0, 0), edgesFrom));
 </script>

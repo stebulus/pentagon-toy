@@ -11,25 +11,25 @@
 <script src="common.js"></script>
 <script>
 
+function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
+function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+
 const edges = {
-    h: { dx: 1, dy: 0 },
-    v: { dx: 0, dy: 3 },
-    u: { dx: 0, dy: -3 },
-    a: { dx: -1, dy: -1 },
-    b: { dx: -1, dy: 2 },
+    h: vec(1, 0),
+    v: vec(0, 3),
+    u: vec(0, -3),
+    a: vec(-1, -1),
+    b: vec(-1, 2),
 };
 const edgesFlipped = {};
-for (const xfm in edges) {
-    const e = edges[xfm];
-    edgesFlipped[xfm] = { dx: -e.dx, dy: -e.dy };
-}
+for (const xfm in edges)
+    edgesFlipped[xfm] = edges[xfm].negate();
 
 function edgesFrom(p) {
-    const flipped = p.x % 2 == 0 ? edges : edgesFlipped;
+    const flipped = p.x.toNumber() % 2 == 0 ? edges : edgesFlipped;
     const outEdges = {}
     for (const xfm in flipped) {
-        const e = flipped[xfm];
-        const neighbour = { x: p.x + e.dx, y: p.y + e.dy };
+        const neighbour = p.translate(flipped[xfm]);
         if (inBounds(neighbour))
             outEdges[xfm] = neighbour;
     }
@@ -37,7 +37,7 @@ function edgesFrom(p) {
 }
 
 function inBounds(p) {
-    return -2 <= p.x && p.x <= 2 && -7 <= p.y && p.y <= 7;
+    return Math.abs(p.x.toNumber()) <= 2 && Math.abs(p.y.toNumber()) <= 7;
 }
 
 pentagons({
@@ -46,6 +46,6 @@ pentagons({
     h: rotate180(dots[2], dots[3]),
     u: ray2ray(dots[4], dots[3], dots[1], dots[2]),
     v: ray2ray(dots[1], dots[2], dots[4], dots[3]),
-}, paths(edgesFrom));
+}, paths(pt(0, 0), edgesFrom));
 
 </script>

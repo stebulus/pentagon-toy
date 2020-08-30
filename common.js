@@ -4,6 +4,26 @@ function mod(a, b) {
     return r;
 }
 
+function onValues(f) {
+    return function (d) {
+        const result = {};
+        for (const prop in d)
+            result[prop] = f(d[prop]);
+        return result;
+    };
+}
+
+function iterate(x, f, n) {
+    if (n === 0)
+        return [];
+    const result = [x];
+    for (let i = 1; i < n; i++) {
+        x = f(x);
+        result.push(x);
+    }
+    return result;
+}
+
 function best(arr, score) {
     let bestItem = arr[0];
     let bestScore = score(bestItem);
@@ -17,9 +37,143 @@ function best(arr, score) {
     return bestItem;
 }
 
+function Num(a) {
+    this.num = a
+}
+
+Num.prototype.toNumber = function () {
+    return this.num;
+};
+
+Num.prototype.equals = function (m) {
+    return this.num === m.num;
+};
+
+Num.prototype.add = function (m) {
+    return new Num(this.num + m.num);
+};
+
+Num.prototype.sub = function (m) {
+    return new Num(this.num - m.num);
+};
+
+Num.prototype.negate = function () {
+    return new Num(-this.num);
+};
+
+Num.prototype.mul = function (m) {
+    if (typeof m == "number") m = new Num(m);
+    return new Num(this.num * m.num);
+};
+
+function NumRoot3(a, b) {
+    this.a = a;
+    if (b === undefined) b = 0;
+    this.b = b;
+}
+
+const ROOT3 = Math.sqrt(3);
+
+NumRoot3.prototype.toNumber = function () {
+    return this.a + this.b*ROOT3;
+};
+
+NumRoot3.prototype.equals = function (m) {
+    return this.a === m.a && this.b === m.b;
+};
+
+NumRoot3.prototype.add = function (m) {
+    return new NumRoot3(this.a + m.a, this.b + m.b);
+};
+
+NumRoot3.prototype.sub = function (m) {
+    return new NumRoot3(this.a - m.a, this.b - m.b);
+};
+
+NumRoot3.prototype.negate = function () {
+    return new NumRoot3(-this.a, -this.b);
+};
+
+NumRoot3.prototype.mul = function (m) {
+    if (typeof m == "number") m = new NumRoot3(m);
+    return new NumRoot3(this.a*m.a + 3*this.b*m.b, this.a*m.b + m.a*this.b);
+};
+
+function Vector(dx, dy) {
+    this.dx = dx;
+    this.dy = dy;
+}
+
+Vector.prototype.toString = function () {
+    return this.dx.toNumber() + " " + this.dy.toNumber();
+};
+
+Vector.prototype.add = function (v) {
+    return new Vector(this.dx.add(v.dx), this.dy.add(v.dy));
+};
+
+Vector.prototype.equals = function (v) {
+    return this.dx.equals(v.dx) && this.dy.equals(v.dy);
+};
+
+Vector.prototype.negate = function () {
+    return new Vector(this.dx.negate(), this.dy.negate());
+};
+
+Vector.prototype.scale = function (r) {
+    if (typeof r === "number")
+        r = new this.dx.constructor(r)
+    return new Vector(this.dx.mul(r), this.dy.mul(r));
+};
+
+Vector.prototype.rot90 = function () {
+    return new Vector(this.dy.negate(), this.dx);
+};
+
+Vector.prototype.angle = function () {
+    return Math.atan2(this.dy.toNumber(), this.dx.toNumber());
+};
+
+Vector.prototype.degrees = function () {
+    return this.angle()*180/Math.PI;
+};
+
+Vector.prototype.dot = function (v) {
+    return this.dx.mul(v.dx).add(this.dy.mul(v.dy));
+};
+
+function Point(x, y) {
+    this.x = x;
+    this.y = y;
+}
+
+Point.prototype.toString = function () {
+    return this.x.toNumber() + " " + this.y.toNumber();
+};
+
+Point.prototype.equals = function (q) {
+    return this.x.equals(q.x) && this.y.equals(q.y);
+};
+
+Point.prototype.to = function (q) {
+    return new Vector(q.x.sub(this.x), q.y.sub(this.y));
+};
+
+Point.prototype.translate = function (v) {
+    return new Point(this.x.add(v.dx), this.y.add(v.dy));
+};
+
+Point.prototype.reflectInOrigin = function () {
+    return new Point(this.x.negate(), this.y.negate());
+};
+
+Point.polar = function (radius, angle) {
+    return new Point(new Num(radius*Math.cos(angle)), new Num(radius*Math.sin(angle)));
+};
+
 const SVGNS = "http://www.w3.org/2000/svg";
 
-const dragging = {dx: 0, dy: 0, target: null};
+const dragging = {offset: new Vector(new Num(0), new Num(0)), target: null};
 const svg = document.querySelector("svg");
 svg.addEventListener("mousemove", move, false);
 document.body.addEventListener("mouseup", stopDragging, false);
@@ -30,17 +184,14 @@ function event2svg(event) {
     p.x = event.clientX;
     p.y = event.clientY;
     const q = p.matrixTransform(svg.getScreenCTM().inverse());
-    return {x: q.x, y: q.y};
+    return new Point(new Num(q.x), new Num(q.y));
 }
 
 function move(event) {
     target = dragging.target;
     if (target != null) {
         const p = event2svg(event);
-        target.set({
-            x: p.x + dragging.dx,
-            y: p.y + dragging.dy
-        });
+        target.set(p.translate(dragging.offset));
     }
 }
 
@@ -52,8 +203,7 @@ function startDragging(v) {
     return function (event) {
         const p = v.value;
         const svgpt = event2svg(event);
-        dragging.dx = p.x - svgpt.x;
-        dragging.dy = p.y - svgpt.y;
+        dragging.offset = svgpt.to(p);
         dragging.target = v;
     }
 }
@@ -128,15 +278,15 @@ function visibility(boolvar, elem) {
 
 function xy(pvar, elem) {
     return variable([pvar], function (p) {
-        elem.setAttribute("x", p.x);
-        elem.setAttribute("y", p.y);
+        elem.setAttribute("x", p.x.toNumber());
+        elem.setAttribute("y", p.y.toNumber());
     });
 }
 
 function centre(pvar, circle) {
     return variable([pvar], function (p) {
-        circle.setAttribute("cx", p.x);
-        circle.setAttribute("cy", p.y);
+        circle.setAttribute("cx", p.x.toNumber());
+        circle.setAttribute("cy", p.y.toNumber());
     });
 }
 
@@ -144,7 +294,7 @@ function polygon(vertexvars, gon) {
     return variable(vertexvars, function () {
         const strings = [];
         for (const p of arguments)
-            strings.push(p.x + "," + p.y);
+            strings.push(p.toString());
         gon.setAttribute("points", strings.join(" "));
     });
 }
@@ -157,49 +307,45 @@ function gtransform(tvar, g) {
 
 function rotate180(pvar, qvar) {
     return variable([pvar, qvar], function (p, q) {
-        const m = {x: (p.x + q.x)/2, y: (p.y + q.y)/2};
-        return "rotate(180 " + m.x + " " + m.y + ")";
+        const m = p.translate(p.to(q).scale(0.5));
+        return "rotate(180 " + m + ")";
     });
 }
 
 function ray2ray(p1var, q1var, p2var, q2var) {
     return variable([p1var, q1var, p2var, q2var], function (p1, q1, p2, q2) {
-        const tr = {x: p2.x - p1.x, y: p2.y - p1.y};
-        const translate = "translate(" + tr.x + " " + tr.y + ")";
-        const ang1 = Math.atan2(q1.y - p1.y, q1.x - p1.x);
-        const ang2 = Math.atan2(q2.y - p2.y, q2.x - p2.x);
-        const rot = (ang2 - ang1)*180/Math.PI
-        const rotate = "rotate(" + rot + " " + p2.x + " " + p2.y + ")";
+        const translate = "translate(" + p1.to(p2) + ")";
+        const ang1 = p1.to(q1).degrees();
+        const ang2 = p2.to(q2).degrees();
+        const rotate = "rotate(" + (ang2 - ang1) + " " + p2 + ")";
         return [rotate, translate].join(" ");
     });
 }
 
 function ray2rayflip(p1var, q1var, p2var, q2var) {
     return variable([p1var, q1var, p2var, q2var], function (p1, q1, p2, q2) {
-        const ang1 = Math.atan2(q1.y - p1.y, q1.x - p1.x)*180/Math.PI;
-        const ang2 = Math.atan2(q2.y - p2.y, q2.x - p2.x)*180/Math.PI;
+        const ang1 = p1.to(q1).degrees();
+        const ang2 = p2.to(q2).degrees();
         const flip =
-            "rotate(" + ang1 + " " + p1.x + " " + p1.y + ")"
-            + " translate(" + p1.x + " " + p1.y + ")"
+            "rotate(" + ang1 + " " + p1 + ")"
+            + " translate(" + p1 + ")"
             + " scale(1 -1)"
-            + " translate(" + (-p1.x) + " " + (-p1.y) + ")"
-            + " rotate(" + (-ang1) + " " + p1.x + " " + p1.y + ")";
-        const tr = {x: p2.x - p1.x, y: p2.y - p1.y};
-        const translate = "translate(" + tr.x + " " + tr.y + ")";
-        const rotate = "rotate(" + (ang2 - ang1) + " " + p2.x + " " + p2.y + ")";
+            + " translate(" + p1.reflectInOrigin() + ")"
+            + " rotate(" + (-ang1) + " " + p1 + ")";
+        const translate = "translate(" + p1.to(p2) + ")";
+        const rotate = "rotate(" + (ang2 - ang1) + " " + p2 + ")";
         return rotate + translate + flip;
     });
 }
 
 function centroid(pointvars) {
     return variable(pointvars, function () {
-        let n = 0, x = 0, y = 0;
-        for (const p of arguments) {
-            n++;
-            x += p.x;
-            y += p.y;
-        }
-        return {x: x/n, y: y/n};
+        const origin = arguments[0];
+        let v = origin.to(origin);
+        for (const p of arguments)
+            v = v.add(origin.to(p));
+        v = v.scale(1/arguments.length);
+        return origin.translate(v);
     });
 }
 
@@ -209,9 +355,7 @@ for (let i = 0; i < 5; i++) {
     const circle = document.createElementNS(SVGNS, "circle");
     circle.setAttribute("r", "3mm");
     vertices.appendChild(circle);
-    const angle = (i/5 - 1/4)*2*Math.PI;
-    const radius = 90;
-    const dot = new Store({x: radius*Math.cos(angle), y: radius*Math.sin(angle)});
+    const dot = new Store(Point.polar(90, (i/5 - 1/4)*2*Math.PI));
     dots.push(dot);
     centre(dot, circle);
     circle.addEventListener("mousedown", startDragging(dot), false);
@@ -258,16 +402,16 @@ function pathQuality(path) {
     return quality;
 }
 
-function paths(edgesFrom) {
+function paths(start, edgesFrom) {
     const seen = [];
     function haveSeen(node) {
         for (const seenNode of seen) {
-            if (seenNode.x === node.x && seenNode.y === node.y)
+            if (seenNode.equals(node))
                 return true;
         }
         return false;
     }
-    const queue = [{"": { x: 0, y: 0 }}];
+    const queue = [{"": start}];
     const paths = [];
     while (queue.length > 0) {
         const fan = queue.shift();

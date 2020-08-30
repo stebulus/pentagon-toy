@@ -11,31 +11,24 @@
 <script src="common.js"></script>
 <script>
 
-const edges = [{
-    R: { dx: 1, dy: 1 },
-    z: { dx: 0, dy: 1 },
-    Y: { dx: -1, dy: 0 },
-    s: { dx: 0, dy: -1 },
-    r: { dx: 1, dy: -1 },
-}];
-for (let rotation = 1; rotation < 4; rotation++) {
-    let prev = edges[edges.length - 1];
-    const next = {};
-    for (const xfm in prev) {
-        const e = prev[xfm];
-        next[xfm] = { dx: -e.dy, dy: e.dx };
-    }
-    edges.push(next);
-}
+function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
+function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+
+const edges = iterate({
+    R: vec(1, 1),
+    z: vec(0, 1),
+    Y: vec(-1, 0),
+    s: vec(0, -1),
+    r: vec(1, -1),
+}, onValues(function (v) { return v.rot90(); }), 4);
 
 function edgesFrom(p) {
-    let rotation = mod(p.x + 2*p.y, 5);
+    let rotation = mod(p.x.toNumber() + 2*p.y.toNumber(), 5);
     if (rotation == 4) rotation = 1;
     const rotated = edges[rotation];
     const outEdges = {}
     for (const xfm in rotated) {
-        const v = rotated[xfm]
-        const neighbour = { x: p.x + v.dx, y: p.y + v.dy };
+        const neighbour = p.translate(rotated[xfm]);
         if (inBounds(neighbour))
             outEdges[xfm] = neighbour;
     }
@@ -43,8 +36,8 @@ function edgesFrom(p) {
 }
 
 function inBounds(p) {
-    const u = p.x + 2*p.y;
-    const v = -2*p.x + p.y;
+    const u = p.x.toNumber() + 2*p.y.toNumber();
+    const v = -2*p.x.toNumber() + p.y.toNumber();
     return -6 <= u && u < 6 && -6 <= v && v < 6;
 }
 
@@ -58,5 +51,5 @@ pentagons({
     S: ray2ray(dots[2], dots[1], dots[2], dots[3]),
     Y: ray2ray(dots[1], dots[2], dots[3], dots[2]),
     z: rotate180(dots[3], dots[4]),
-}, paths(edgesFrom));
+}, paths(pt(0, 0), edgesFrom));
 </script>
