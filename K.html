@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<svg id="svg" viewBox="-500 -500 1000 1000">
+    <g id="transformed" fill-opacity="0.5" />
+    <g id="pentagon-g" fill-opacity="0.5">
+        <polygon id="pentagon" stroke="black" stroke-width="1mm" />
+    </g>
+    <g id="vertices" />
+</svg>
+<script src="common.js"></script>
+<script>
+
+function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
+function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+
+const xfm = {
+    a: rotate180(dots[0], dots[1]),
+    b: ray2ray(dots[1], dots[0], dots[1], dots[2]),
+    B: ray2ray(dots[0], dots[1], dots[2], dots[1]),
+    c: rotate180(dots[2], dots[3]),
+    d: ray2ray(dots[4], dots[0], dots[4], dots[3]),
+    D: ray2ray(dots[0], dots[4], dots[3], dots[4]),
+    e: ray2ray(dots[3], dots[2], dots[4], dots[0]),
+    E: ray2ray(dots[2], dots[3], dots[0], dots[4]),
+    p: ray2ray(dots[1], dots[2], dots[1], dots[0]),
+    P: ray2ray(dots[2], dots[1], dots[0], dots[1]),
+    q: rotate180(dots[1], dots[2]),
+    r: ray2ray(dots[4], dots[0], dots[3], dots[2]),
+    R: ray2ray(dots[0], dots[4], dots[2], dots[3]),
+    s: rotate180(dots[3], dots[4]),
+    t: ray2ray(dots[4], dots[3], dots[4], dots[0]),
+    T: ray2ray(dots[3], dots[4], dots[0], dots[4]),
+};
+const edgeSets = [[], []];
+edgeSets[0].push({
+    a: vec(1, 0),
+    b: vec(0, -1),
+    B: vec(0, -1),
+    c: vec(-1, 0),
+    d: vec(-1, 1),
+    D: vec(-1, 1),
+    e: vec(0, 1),
+    E: vec(0, 1),
+});
+edgeSets[0].push(onValues(function (v) { return v.negate(); })(edgeSets[0][0]));
+edgeSets[1].push({
+    p: vec(0, 1),
+    P: vec(0, 1),
+    q: vec(1, 0),
+    r: vec(0, -1),
+    R: vec(0, -1),
+    s: vec(-1, 0),
+    t: vec(-1, -1),
+    T: vec(-1, -1),
+});
+edgeSets[1].push(onValues(function (v) { return v.negate(); })(edgeSets[1][0]));
+
+function inBounds(p) {
+    return Math.abs(p.x.toNumber()) <= 2 && Math.abs(p.y.toNumber()) <= 2
+}
+
+function edgesFrom(p) {
+    const edges = edgeSets[mod(p.y.toNumber(), 2)][mod(p.x.toNumber(), 2)]
+    const outEdges = [];
+    for (const xfm in edges) {
+        const neighbour = p.translate(edges[xfm]);
+        if (inBounds(neighbour))
+            outEdges[xfm] = neighbour;
+    }
+    return outEdges;
+}
+
+pentagons(xfm, paths(pt(0, 0), edgesFrom), 60);
+</script>
