@@ -13,6 +13,12 @@
         list-style-type: none;
         padding: 0;
     }
+    @media (min-aspect-ratio: 1/1) {
+        ul {
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+    }
     li {
         font-family: sans;
         font-size: 12vh;
