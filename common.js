@@ -130,6 +130,10 @@ Vector.prototype.rot90 = function () {
     return new Vector(this.dy.negate(), this.dx);
 };
 
+Vector.prototype.swap = function () {
+    return new Vector(this.dy, this.dx);
+};
+
 Vector.prototype.angle = function () {
     return Math.atan2(this.dy.toNumber(), this.dx.toNumber());
 };
