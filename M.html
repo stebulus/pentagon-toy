@@ -77,7 +77,7 @@ function inBounds(p) {
 
 function edgesFrom(p) {
     const i = mod(p.x.toNumber(), 2);
-    const j = mod(p.y.toNumber() + Math.floor(mod(p.x.toNumber(), 4)/2)*2 , 4);
+    const j = mod(p.y.toNumber() + div(mod(p.x.toNumber(), 4), 2)*2 , 4);
     const edges = edgeClasses[i][j];
     const outEdges = {};
     for (const xfm in edges) {

@@ -4,6 +4,10 @@ function mod(a, b) {
     return r;
 }
 
+function div(a, b) {
+    return Math.floor(a/b);
+}
+
 function onValues(f) {
     return function (d) {
         const result = {};
