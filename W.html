@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Regime W, Pentagon Toy</title>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<svg id="svg" viewBox="-500 -500 1000 1000">
+    <g id="transformed" fill-opacity="0.5" />
+    <g id="pentagon-g" fill-opacity="0.5">
+        <polygon id="pentagon" stroke="black" stroke-width="1mm" />
+    </g>
+    <g id="vertices" />
+</svg>
+<script src="common.js"></script>
+<script>
+
+function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
+function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+
+function methods() {
+    const methodNames = arguments;
+    return function (x) {
+        for (const name of methodNames)
+            x = x[name]();
+        return x;
+    }
+}
+
+const xfm = {
+    a: ray2rayflip(dots[1], dots[2], dots[0], dots[1]),
+    b: ray2rayflip(dots[3], dots[4], dots[1], dots[2]),
+    c: ray2ray(dots[3], dots[4], dots[2], dots[1]),
+    d: ray2ray(dots[2], dots[1], dots[2], dots[3]),
+    e: ray2rayflip(dots[1], dots[2], dots[3], dots[4]),
+    f: ray2rayflip(dots[4], dots[0], dots[4], dots[0]),
+    p: rotate180(dots[0], dots[1]),
+    q: ray2rayflip(dots[0], dots[1], dots[1], dots[2]),
+    r: ray2ray(dots[2], dots[3], dots[2], dots[1]),
+    s: rotate180(dots[2], dots[3]),
+    t: ray2ray(dots[2], dots[1], dots[3], dots[4]),
+};
+
+const edgeClasses = [[], [], [], []];
+
+edgeClasses[0].push({
+    a: vec(0, 1),
+    b: vec(1, 1),
+    c: vec(1, 0),
+    d: vec(0, -1),
+    e: vec(-1, -1),
+    f: vec(-1, 0),
+});
+edgeClasses[0].push(onValues(methods("negate"))(edgeClasses[0][0]));
+
+edgeClasses[1].push({
+    p: vec(-1, -1),
+    q: vec(0, -1),
+    r: vec(1, 0),
+    s: vec(1, 1),
+    t: vec(0, 1),
+    f: vec(-1, 0),
+});
+edgeClasses[1].push(onValues(methods("swap", "negate"))(edgeClasses[1][0]));
+
+edgeClasses[2].push(onValues(methods("swap", "negate"))(edgeClasses[0][0]));
+edgeClasses[2].push(onValues(methods("swap"))(edgeClasses[0][0]));
+
+edgeClasses[3].push(onValues(methods("swap"))(edgeClasses[1][0]));
+edgeClasses[3].push(onValues(methods("negate"))(edgeClasses[1][0]));
+
+function inBounds(p) {
+    return Math.abs(p.x.toNumber()) <= 2 && Math.abs(p.y.toNumber()) <= 2
+}
+
+function edgesFrom(p) {
+    const i = mod(p.x.toNumber() + p.y.toNumber(), 4)
+    const j = mod(p.x.toNumber(), 2)
+    const edges = edgeClasses[i][j];
+    const outEdges = {};
+    for (const xfm in edges) {
+        const neighbour = p.translate(edges[xfm]);
+        if (inBounds(neighbour))
+            outEdges[xfm] = neighbour;
+    }
+    return outEdges;
+}
+
+pentagons(xfm, paths(pt(0, 0), edgesFrom), 15);
+</script>
