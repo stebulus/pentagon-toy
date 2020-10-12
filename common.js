@@ -304,16 +304,46 @@ function centroid(pointvars) {
     });
 }
 
+try {
+    storage = window.localStorage;
+} catch (error) {
+    console.log("no local storage, alas", error);
+    storage = null;
+}
+
+function storageKey(i) {
+    return document.location.pathname + "#point" + i;
+}
+
+function initialValue(i) {
+    try {
+        const p = JSON.parse(storage.getItem(storageKey(i)));
+        return pt(p.x, p.y);
+    } catch (e) {
+        return Point.polar(90, (i/5 - 1/4)*2*Math.PI);
+    }
+}
+
+function storeCoords(ptvar, i) {
+    if (storage === null)
+        return null;
+    else
+        return variable([ptvar], function (pt) {
+            storage.setItem(storageKey(i), JSON.stringify(pt));
+        });
+}
+
 const vertices = document.querySelector("#vertices");
 const dots = [];
 for (let i = 0; i < 5; i++) {
     const circle = document.createElementNS(SVGNS, "circle");
     circle.setAttribute("r", "3mm");
     vertices.appendChild(circle);
-    const dot = new Store(Point.polar(90, (i/5 - 1/4)*2*Math.PI));
+    const dot = new Store(initialValue(i));
     dots.push(dot);
     centre(dot, circle);
     circle.addEventListener("mousedown", startDragging(dot), false);
+    storeCoords(dot, i);
 }
 polygon(dots, document.querySelector("#pentagon"));
 
