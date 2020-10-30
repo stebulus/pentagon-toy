@@ -12,9 +12,6 @@
 <script src="common.js"></script>
 <script>
 
-function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
-function pt(x, y) { return new Point(new Num(x), new Num(y)); }
-
 const baseEdges = {
     f: vec(3, 5),
     a: vec(6, 2),
@@ -24,7 +21,7 @@ const baseEdges = {
     R: vec(-2, -6),
 };
 function negate(v) { return v.negate(); }
-function swap(v) { return new Vector(v.dy, v.dx); }
+function swap(v) { return v.swap(); }
 function apply(vs, fs) {
     const result = {};
     for (const k in vs) {
@@ -41,7 +38,7 @@ edgesByClass[6] = apply(baseEdges, [negate, swap]);
 edgesByClass[8] = apply(baseEdges, [swap]);
 
 function edgesFrom(p) {
-    const edges = edgesByClass[mod(p.y.sub(p.x).toNumber(), 12)];
+    const edges = edgesByClass[mod(p.y - p.x, 12)];
     const outEdges = {}
     for (const xfm in edges) {
         const neighbour = p.translate(edges[xfm]);
@@ -52,8 +49,8 @@ function edgesFrom(p) {
 }
 
 function inBounds(p) {
-    const u = p.y.sub(p.x).toNumber();
-    const v = p.x.add(p.y).toNumber();
+    const u = p.y - p.x;
+    const v = p.x + p.y;
     return -16 <= u && u < 14 && Math.abs(v) <= 16;
 }
 
@@ -64,6 +61,6 @@ pentagons({
     h: ray2rayflip(dots[3], dots[2], dots[0], dots[4]),
     r: ray2rayflip(dots[1], dots[2], dots[3], dots[4]),
     R: ray2rayflip(dots[2], dots[1], dots[4], dots[3]),
-}, paths(pt(0, 0), edgesFrom), 120);
+}, paths(origin, edgesFrom), 120);
 
 </script>

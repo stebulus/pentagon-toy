@@ -41,105 +41,43 @@ function best(arr, score) {
     return bestItem;
 }
 
-function Num(a) {
-    this.num = a
-}
-
-Num.prototype.toNumber = function () {
-    return this.num;
-};
-
-Num.prototype.equals = function (m) {
-    return this.num === m.num;
-};
-
-Num.prototype.add = function (m) {
-    return new Num(this.num + m.num);
-};
-
-Num.prototype.sub = function (m) {
-    return new Num(this.num - m.num);
-};
-
-Num.prototype.negate = function () {
-    return new Num(-this.num);
-};
-
-Num.prototype.mul = function (m) {
-    if (typeof m == "number") m = new Num(m);
-    return new Num(this.num * m.num);
-};
-
-function NumRoot3(a, b) {
-    this.a = a;
-    if (b === undefined) b = 0;
-    this.b = b;
-}
-
-const ROOT3 = Math.sqrt(3);
-
-NumRoot3.prototype.toNumber = function () {
-    return this.a + this.b*ROOT3;
-};
-
-NumRoot3.prototype.equals = function (m) {
-    return this.a === m.a && this.b === m.b;
-};
-
-NumRoot3.prototype.add = function (m) {
-    return new NumRoot3(this.a + m.a, this.b + m.b);
-};
-
-NumRoot3.prototype.sub = function (m) {
-    return new NumRoot3(this.a - m.a, this.b - m.b);
-};
-
-NumRoot3.prototype.negate = function () {
-    return new NumRoot3(-this.a, -this.b);
-};
-
-NumRoot3.prototype.mul = function (m) {
-    if (typeof m == "number") m = new NumRoot3(m);
-    return new NumRoot3(this.a*m.a + 3*this.b*m.b, this.a*m.b + m.a*this.b);
-};
-
 function Vector(dx, dy) {
     this.dx = dx;
     this.dy = dy;
 }
 
+function vec(dx, dy) { return new Vector(dx, dy); }
+
 Vector.prototype.toString = function () {
-    return this.dx.toNumber() + " " + this.dy.toNumber();
+    return this.dx + " " + this.dy;
 };
 
 Vector.prototype.add = function (v) {
-    return new Vector(this.dx.add(v.dx), this.dy.add(v.dy));
+    return vec(this.dx + v.dx, this.dy + v.dy);
 };
 
 Vector.prototype.equals = function (v) {
-    return this.dx.equals(v.dx) && this.dy.equals(v.dy);
+    return this.dx === v.dx && this.dy === v.dy;
 };
 
 Vector.prototype.negate = function () {
-    return new Vector(this.dx.negate(), this.dy.negate());
+    return vec(-this.dx, -this.dy);
 };
 
 Vector.prototype.scale = function (r) {
-    if (typeof r === "number")
-        r = new this.dx.constructor(r)
-    return new Vector(this.dx.mul(r), this.dy.mul(r));
+    return vec(r*this.dx, r*this.dy);
 };
 
 Vector.prototype.rot90 = function () {
-    return new Vector(this.dy.negate(), this.dx);
+    return vec(-this.dy, this.dx);
 };
 
 Vector.prototype.swap = function () {
-    return new Vector(this.dy, this.dx);
+    return vec(this.dy, this.dx);
 };
 
 Vector.prototype.angle = function () {
-    return Math.atan2(this.dy.toNumber(), this.dx.toNumber());
+    return Math.atan2(this.dy, this.dx);
 };
 
 Vector.prototype.degrees = function () {
@@ -147,7 +85,7 @@ Vector.prototype.degrees = function () {
 };
 
 Vector.prototype.dot = function (v) {
-    return this.dx.mul(v.dx).add(this.dy.mul(v.dy));
+    return this.dx*v.dx + this.dy*v.dy;
 };
 
 Vector.prototype.normsq = function () {
@@ -159,37 +97,38 @@ function Point(x, y) {
     this.y = y;
 }
 
+function pt(x, y) { return new Point(x, y); }
+
 Point.prototype.toString = function () {
-    return this.x.toNumber() + " " + this.y.toNumber();
+    return this.x + " " + this.y;
 };
 
 Point.prototype.equals = function (q) {
-    return this.x.equals(q.x) && this.y.equals(q.y);
+    return this.x === q.x && this.y === q.y;
 };
 
 Point.prototype.to = function (q) {
-    return new Vector(q.x.sub(this.x), q.y.sub(this.y));
-};
-
-Point.prototype.fromOrigin = function () {
-    return new Vector(this.x, this.y);
+    return vec(q.x - this.x, q.y - this.y);
 };
 
 Point.prototype.translate = function (v) {
-    return new Point(this.x.add(v.dx), this.y.add(v.dy));
+    return pt(this.x + v.dx, this.y + v.dy);
 };
 
 Point.prototype.reflectInOrigin = function () {
-    return new Point(this.x.negate(), this.y.negate());
+    return pt(-this.x, -this.y);
 };
 
 Point.polar = function (radius, angle) {
-    return new Point(new Num(radius*Math.cos(angle)), new Num(radius*Math.sin(angle)));
+    return pt(radius*Math.cos(angle), radius*Math.sin(angle));
 };
+
+const origin = pt(0, 0);
+const zero = origin.to(origin);
 
 const SVGNS = "http://www.w3.org/2000/svg";
 
-const dragging = {offset: new Vector(new Num(0), new Num(0)), target: null};
+const dragging = {offset: zero, target: null};
 const svg = document.querySelector("svg");
 svg.addEventListener("mousemove", move, false);
 document.body.addEventListener("mouseup", stopDragging, false);
@@ -200,7 +139,7 @@ function event2svg(event) {
     p.x = event.clientX;
     p.y = event.clientY;
     const q = p.matrixTransform(svg.getScreenCTM().inverse());
-    return new Point(new Num(q.x), new Num(q.y));
+    return pt(q.x, q.y);
 }
 
 function move(event) {
@@ -294,15 +233,15 @@ function visibility(boolvar, elem) {
 
 function xy(pvar, elem) {
     return variable([pvar], function (p) {
-        elem.setAttribute("x", p.x.toNumber());
-        elem.setAttribute("y", p.y.toNumber());
+        elem.setAttribute("x", p.x);
+        elem.setAttribute("y", p.y);
     });
 }
 
 function centre(pvar, circle) {
     return variable([pvar], function (p) {
-        circle.setAttribute("cx", p.x.toNumber());
-        circle.setAttribute("cy", p.y.toNumber());
+        circle.setAttribute("cx", p.x);
+        circle.setAttribute("cy", p.y);
     });
 }
 
