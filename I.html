@@ -12,13 +12,12 @@
 <script src="common.js"></script>
 <script>
 
-function num(n) { return new Num(n); }
-function vec(dx, dy) { return new Vector(num(dx), num(dy)); }
-function pt(x, y) { return new Point(num(x), num(y)); }
+function vec(dx, dy) { return new Vector(dx, dy); }
+function pt(x, y) { return new Point(x, y); }
 
 /* See F.html for an explanation of how this is "rotate by 60 degrees". */
 function zrot60(v) {
-    return new Vector(v.dx.sub(v.dy), v.dx);
+    return vec(v.dx - v.dy, v.dx);
 }
 
 const edges = iterate({
@@ -35,19 +34,13 @@ const edges = iterate({
 
 function inBounds(p) {
     const q = decompose(p).hub.fromOrigin();
-    return q.dx.mul(q.dx).sub(q.dx.mul(q.dy)).add(q.dy.mul(q.dy)).toNumber() <= 7;
+    return q.dx*q.dx - q.dx*q.dy + q.dy*q.dy <= 7;
 }
 
 function decompose(p) {
-    const q = new Vector(
-        p.x.negate().sub(p.y.mul(2)),
-        p.x.mul(3).sub(p.y),
-    ).scale(1/7);
-    const qz = vec(Math.round(q.dx.toNumber()), Math.round(q.dy.toNumber()));
-    const hub = new Point(
-        qz.dx.negate().add(qz.dy.mul(2)),
-        qz.dx.mul(-3).sub(qz.dy),
-    )
+    const q = vec(-p.x - 2*p.y, 3*p.x - p.y).scale(1/7)
+    const qz = vec(Math.round(q.dx), Math.round(q.dy));
+    const hub = pt(-qz.dx + 2*qz.dy, -3*qz.dx - qz.dy)
     return { hub: hub, spoke: hub.to(p) };
 }
 

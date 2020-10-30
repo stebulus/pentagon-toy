@@ -12,9 +12,8 @@
 <script src="common.js"></script>
 <script>
 
-function num(n) { return new Num(n); }
-function vec(dx, dy) { return new Vector(num(dx), num(dy)); }
-function pt(x, y) { return new Point(num(x), num(y)); }
+function vec(dx, dy) { return new Vector(dx, dy); }
+function pt(x, y) { return new Point(x, y); }
 
 /*
     Conceptually we work on a triangular grid, like
@@ -61,7 +60,7 @@ function pt(x, y) { return new Point(num(x), num(y)); }
     which is what zrot120 implements.
 */
 function zrot120(v) {
-    return new Vector(v.dy.negate(), v.dx.sub(v.dy));
+    return vec(-v.dy, v.dx - v.dy);
 }
 
 const edges = iterate({
@@ -75,15 +74,15 @@ const edges = iterate({
 
 function inBounds(p) {
     const pvec = pt(0, 0).to(p);
-    const u = pvec.dx.mul(2).sub(pvec.dy).toNumber();
-    const v = pvec.dot(vec(2, 2)).toNumber();
-    const w = pvec.dot(vec(-2, 4)).toNumber();
+    const u = 2*pvec.dx - pvec.dy;
+    const v = pvec.dot(vec(2, 2));
+    const w = pvec.dot(vec(-2, 4));
     return -6 < u && u < 4 && -11 < v && v < 7 && -9 < w && w < 9;
 }
 
 function edgesFrom(p) {
-    const q = new Vector(p.x.sub(p.y), p.y);
-    const rotation = mod(q.dy.sub(q.dx).toNumber(), 3);
+    const q = vec(p.x - p.y, p.y);
+    const rotation = mod(q.dy - q.dx, 3);
     const rotated = edges[rotation];
     const outEdges = {}
     for (const xfm in rotated) {

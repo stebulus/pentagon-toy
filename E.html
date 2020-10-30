@@ -12,8 +12,8 @@
 <script src="common.js"></script>
 <script>
 
-function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
-function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+function vec(dx, dy) { return new Vector(dx, dy); }
+function pt(x, y) { return new Point(x, y); }
 
 const baseEdges = {
     f: vec(3, 5),
@@ -41,7 +41,7 @@ edgesByClass[6] = apply(baseEdges, [negate, swap]);
 edgesByClass[8] = apply(baseEdges, [swap]);
 
 function edgesFrom(p) {
-    const edges = edgesByClass[mod(p.y.sub(p.x).toNumber(), 12)];
+    const edges = edgesByClass[mod(p.y - p.x, 12)];
     const outEdges = {}
     for (const xfm in edges) {
         const neighbour = p.translate(edges[xfm]);
@@ -52,8 +52,8 @@ function edgesFrom(p) {
 }
 
 function inBounds(p) {
-    const u = p.y.sub(p.x).toNumber();
-    const v = p.x.add(p.y).toNumber();
+    const u = p.y - p.x;
+    const v = p.x + p.y;
     return -16 <= u && u < 14 && Math.abs(v) <= 16;
 }
 

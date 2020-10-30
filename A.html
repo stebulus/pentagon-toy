@@ -12,8 +12,8 @@
 <script src="common.js"></script>
 <script>
 
-function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
-function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+function vec(dx, dy) { return new Vector(dx, dy); }
+function pt(x, y) { return new Point(x, y); }
 
 const edges = {
     h: vec(1, 0),
@@ -27,7 +27,7 @@ for (const xfm in edges)
     edgesFlipped[xfm] = edges[xfm].negate();
 
 function edgesFrom(p) {
-    const flipped = p.x.toNumber() % 2 == 0 ? edges : edgesFlipped;
+    const flipped = p.x % 2 == 0 ? edges : edgesFlipped;
     const outEdges = {}
     for (const xfm in flipped) {
         const neighbour = p.translate(flipped[xfm]);
@@ -38,7 +38,7 @@ function edgesFrom(p) {
 }
 
 function inBounds(p) {
-    return Math.abs(p.x.toNumber()) <= 2 && Math.abs(p.y.toNumber()) <= 7;
+    return Math.abs(p.x) <= 2 && Math.abs(p.y) <= 7;
 }
 
 pentagons({

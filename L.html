@@ -12,8 +12,8 @@
 <script src="common.js"></script>
 <script>
 
-function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
-function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+function vec(dx, dy) { return new Vector(dx, dy); }
+function pt(x, y) { return new Point(x, y); }
 
 const xfm = {
     a: ray2ray(dots[2], dots[3], dots[1], dots[0]),
@@ -57,20 +57,20 @@ edgeClasses[1].push({
     s: vec(1, 0),
     S: vec(1, 0),
 });
-edgeClasses[1].push(onValues(function (v) { return new Vector(v.dx, v.dy.negate()); })(edgeClasses[1][0]));
+edgeClasses[1].push(onValues(function (v) { return vec(v.dx, -v.dy); })(edgeClasses[1][0]));
 
-edgeClasses[2].push(onValues(function (v) { return new Vector(v.dx.negate(), v.dy); })(edgeClasses[0][0]));
+edgeClasses[2].push(onValues(function (v) { return vec(-v.dx, v.dy); })(edgeClasses[0][0]));
 edgeClasses[2].push(onValues(function (v) { return v.negate(); })(edgeClasses[2][0]));
 
 edgeClasses[3].push(onValues(function (v) { return v.negate(); })(edgeClasses[1][1]));
 edgeClasses[3].push(onValues(function (v) { return v.negate(); })(edgeClasses[1][0]));
 
 function inBounds(p) {
-    return Math.abs(p.x.toNumber()) <= 2 && Math.abs(p.y.toNumber()) <= 2
+    return Math.abs(p.x) <= 2 && Math.abs(p.y) <= 2
 }
 
 function edgesFrom(p) {
-    const edges = edgeClasses[mod(p.y.toNumber(), 4)][mod(p.x.toNumber(), 2)]
+    const edges = edgeClasses[mod(p.y, 4)][mod(p.x, 2)]
     const outEdges = [];
     for (const xfm in edges) {
         const neighbour = p.translate(edges[xfm]);

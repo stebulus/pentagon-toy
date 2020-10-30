@@ -12,8 +12,8 @@
 <script src="common.js"></script>
 <script>
 
-function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
-function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+function vec(dx, dy) { return new Vector(dx, dy); }
+function pt(x, y) { return new Point(x, y); }
 
 const edges = iterate({
     R: vec(1, 1),
@@ -24,7 +24,7 @@ const edges = iterate({
 }, onValues(function (v) { return v.rot90(); }), 4);
 
 function edgesFrom(p) {
-    let rotation = mod(p.x.toNumber() + 2*p.y.toNumber(), 5);
+    let rotation = mod(p.x + 2*p.y, 5);
     if (rotation == 4) rotation = 1;
     const rotated = edges[rotation];
     const outEdges = {}
@@ -37,8 +37,8 @@ function edgesFrom(p) {
 }
 
 function inBounds(p) {
-    const u = p.x.toNumber() + 2*p.y.toNumber();
-    const v = -2*p.x.toNumber() + p.y.toNumber();
+    const u = p.x + 2*p.y;
+    const v = -2*p.x + p.y;
     return -6 <= u && u < 6 && -6 <= v && v < 6;
 }
 

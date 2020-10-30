@@ -12,8 +12,8 @@
 <script src="common.js"></script>
 <script>
 
-function vec(dx, dy) { return new Vector(new Num(dx), new Num(dy)); }
-function pt(x, y) { return new Point(new Num(x), new Num(y)); }
+function vec(dx, dy) { return new Vector(dx, dy); }
+function pt(x, y) { return new Point(x, y); }
 
 function methods() {
     const methodNames = arguments;
@@ -67,12 +67,12 @@ edgeClasses[3].push(onValues(methods("negate"))(edgeClasses[1][1]));
 edgeClasses[3].push(onValues(methods("negate"))(edgeClasses[1][0]));
 
 function inBounds(p) {
-    return Math.abs(p.x.toNumber()) <= 2 && Math.abs(p.y.toNumber()) <= 2
+    return Math.abs(p.x) <= 2 && Math.abs(p.y) <= 2
 }
 
 function edgesFrom(p) {
-    const i = mod(p.x.toNumber() + p.y.toNumber(), 4)
-    const j = mod(p.x.toNumber(), 2)
+    const i = mod(p.x + p.y, 4)
+    const j = mod(p.x, 2)
     const edges = edgeClasses[i][j];
     const outEdges = {};
     for (const xfm in edges) {
