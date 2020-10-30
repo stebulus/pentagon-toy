@@ -12,39 +12,77 @@
 <script src="common.js"></script>
 <script>
 
-function num(n) { return new NumRoot3(n); }
+function num(n) { return new Num(n); }
 function vec(dx, dy) { return new Vector(num(dx), num(dy)); }
 function pt(x, y) { return new Point(num(x), num(y)); }
 
-const R3 = new NumRoot3(0, 1);
-const R3N = R3.negate();
+/*
+    Conceptually we work on a triangular grid, like
 
-function rot120(v) {
-    return new Vector(
-        v.dx.negate().add(v.dy.mul(R3N)),
-        v.dx.mul(R3).sub(v.dy)
-    ).scale(0.5);
+                  C---B
+                 / \ / \
+                D---O---A
+                 \ / \ /
+                  E---F
+
+    but we represent it on a square grid, like
+
+                    C---B
+                   /|  /|
+                 /  |/  |
+                D---O---A
+                |  /|  /
+                |/  |/
+                E---F
+
+    so that all points have integer coordinates.
+    For example, B is (1,1) instead of (1/2, sqrt3/2).
+
+    The transformation from the coordinates (x,y) of the square grid
+    to the coordinates (u,v) on the triangular grid is given by
+
+              1   -1/2                 u       x
+        Q = (            ),     i.e.  ( ) = Q ( )
+              0  sqrt3/2               v       y
+
+    and so "rotating by 120 degrees", which in the triangular grid
+    is represented by the rotation matrix
+
+                    cos 2pi/3  -sin 2pi/3        -1/2    -sqrt3/2
+       R[2pi/3] = (                       ) = (                   )
+                    sin 2pi/3   cos 2pi/3       sqrt3/2    -1/2
+
+    is in the square grid represented by
+
+                              0  -1
+        Q^{-1} R[2pi/3] Q = (       )
+                              1  -1
+
+    which is what zrot120 implements.
+*/
+function zrot120(v) {
+    return new Vector(v.dy.negate(), v.dx.sub(v.dy));
 }
 
 const edges = iterate({
-    r: new Vector(num(1), R3),
-    R: new Vector(num(-1), R3),
-    s: new Vector(num(2), num(0)),
-    S: new Vector(num(1), R3N),
-    t: new Vector(num(-1), R3N),
-    T: new Vector(num(-2), num(0)),
-}, onValues(rot120), 3);
+    r: vec(1, 1),
+    R: vec(0, 1),
+    s: vec(1, 0),
+    S: vec(0, -1),
+    t: vec(-1, -1),
+    T: vec(-1, 0),
+}, onValues(zrot120), 3);
 
 function inBounds(p) {
     const pvec = pt(0, 0).to(p);
-    const u = pvec.dx.toNumber();
-    const v = pvec.dot(new Vector(num(1), R3)).toNumber();
-    const w = pvec.dot(new Vector(num(-1), R3)).toNumber();
+    const u = pvec.dx.mul(2).sub(pvec.dy).toNumber();
+    const v = pvec.dot(vec(2, 2)).toNumber();
+    const w = pvec.dot(vec(-2, 4)).toNumber();
     return -6 < u && u < 4 && -11 < v && v < 7 && -9 < w && w < 9;
 }
 
 function edgesFrom(p) {
-    const q = new Vector(p.x.mul(R3).sub(p.y), p.y.mul(num(2))).scale(R3).scale(1/6);
+    const q = new Vector(p.x.sub(p.y), p.y);
     const rotation = mod(q.dy.sub(q.dx).toNumber(), 3);
     const rotated = edges[rotation];
     const outEdges = {}
