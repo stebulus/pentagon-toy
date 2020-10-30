@@ -70,39 +70,6 @@ Num.prototype.mul = function (m) {
     return new Num(this.num * m.num);
 };
 
-function NumRoot3(a, b) {
-    this.a = a;
-    if (b === undefined) b = 0;
-    this.b = b;
-}
-
-const ROOT3 = Math.sqrt(3);
-
-NumRoot3.prototype.toNumber = function () {
-    return this.a + this.b*ROOT3;
-};
-
-NumRoot3.prototype.equals = function (m) {
-    return this.a === m.a && this.b === m.b;
-};
-
-NumRoot3.prototype.add = function (m) {
-    return new NumRoot3(this.a + m.a, this.b + m.b);
-};
-
-NumRoot3.prototype.sub = function (m) {
-    return new NumRoot3(this.a - m.a, this.b - m.b);
-};
-
-NumRoot3.prototype.negate = function () {
-    return new NumRoot3(-this.a, -this.b);
-};
-
-NumRoot3.prototype.mul = function (m) {
-    if (typeof m == "number") m = new NumRoot3(m);
-    return new NumRoot3(this.a*m.a + 3*this.b*m.b, this.a*m.b + m.a*this.b);
-};
-
 function Vector(dx, dy) {
     this.dx = dx;
     this.dy = dy;
