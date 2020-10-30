@@ -46,12 +46,14 @@ function Vector(dx, dy) {
     this.dy = dy;
 }
 
+function vec(dx, dy) { return new Vector(dx, dy); }
+
 Vector.prototype.toString = function () {
     return this.dx + " " + this.dy;
 };
 
 Vector.prototype.add = function (v) {
-    return new Vector(this.dx + v.dx, this.dy + v.dy);
+    return vec(this.dx + v.dx, this.dy + v.dy);
 };
 
 Vector.prototype.equals = function (v) {
@@ -59,19 +61,19 @@ Vector.prototype.equals = function (v) {
 };
 
 Vector.prototype.negate = function () {
-    return new Vector(-this.dx, -this.dy);
+    return vec(-this.dx, -this.dy);
 };
 
 Vector.prototype.scale = function (r) {
-    return new Vector(r*this.dx, r*this.dy);
+    return vec(r*this.dx, r*this.dy);
 };
 
 Vector.prototype.rot90 = function () {
-    return new Vector(-this.dy, this.dx);
+    return vec(-this.dy, this.dx);
 };
 
 Vector.prototype.swap = function () {
-    return new Vector(this.dy, this.dx);
+    return vec(this.dy, this.dx);
 };
 
 Vector.prototype.angle = function () {
@@ -95,6 +97,8 @@ function Point(x, y) {
     this.y = y;
 }
 
+function pt(x, y) { return new Point(x, y); }
+
 Point.prototype.toString = function () {
     return this.x + " " + this.y;
 };
@@ -104,23 +108,23 @@ Point.prototype.equals = function (q) {
 };
 
 Point.prototype.to = function (q) {
-    return new Vector(q.x - this.x, q.y - this.y);
+    return vec(q.x - this.x, q.y - this.y);
 };
 
 Point.prototype.fromOrigin = function () {
-    return new Vector(this.x, this.y);
+    return vec(this.x, this.y);
 };
 
 Point.prototype.translate = function (v) {
-    return new Point(this.x + v.dx, this.y + v.dy);
+    return pt(this.x + v.dx, this.y + v.dy);
 };
 
 Point.prototype.reflectInOrigin = function () {
-    return new Point(-this.x, -this.y);
+    return pt(-this.x, -this.y);
 };
 
 Point.polar = function (radius, angle) {
-    return new Point(radius*Math.cos(angle), radius*Math.sin(angle));
+    return pt(radius*Math.cos(angle), radius*Math.sin(angle));
 };
 
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -136,7 +140,7 @@ function event2svg(event) {
     p.x = event.clientX;
     p.y = event.clientY;
     const q = p.matrixTransform(svg.getScreenCTM().inverse());
-    return new Point(q.x, q.y);
+    return pt(q.x, q.y);
 }
 
 function move(event) {

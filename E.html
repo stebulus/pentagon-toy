@@ -12,9 +12,6 @@
 <script src="common.js"></script>
 <script>
 
-function vec(dx, dy) { return new Vector(dx, dy); }
-function pt(x, y) { return new Point(x, y); }
-
 const baseEdges = {
     f: vec(3, 5),
     a: vec(6, 2),
@@ -24,7 +21,7 @@ const baseEdges = {
     R: vec(-2, -6),
 };
 function negate(v) { return v.negate(); }
-function swap(v) { return new Vector(v.dy, v.dx); }
+function swap(v) { return v.swap(); }
 function apply(vs, fs) {
     const result = {};
     for (const k in vs) {
