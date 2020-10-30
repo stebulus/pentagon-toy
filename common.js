@@ -111,10 +111,6 @@ Point.prototype.to = function (q) {
     return vec(q.x - this.x, q.y - this.y);
 };
 
-Point.prototype.fromOrigin = function () {
-    return vec(this.x, this.y);
-};
-
 Point.prototype.translate = function (v) {
     return pt(this.x + v.dx, this.y + v.dy);
 };
@@ -127,9 +123,12 @@ Point.polar = function (radius, angle) {
     return pt(radius*Math.cos(angle), radius*Math.sin(angle));
 };
 
+const origin = pt(0, 0);
+const zero = origin.to(origin);
+
 const SVGNS = "http://www.w3.org/2000/svg";
 
-const dragging = {offset: new Vector(0, 0), target: null};
+const dragging = {offset: zero, target: null};
 const svg = document.querySelector("svg");
 svg.addEventListener("mousemove", move, false);
 document.body.addEventListener("mouseup", stopDragging, false);

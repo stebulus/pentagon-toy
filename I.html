@@ -30,7 +30,7 @@ const edges = iterate({
 }, onValues(zrot60), 6);
 
 function inBounds(p) {
-    const q = decompose(p).hub.fromOrigin();
+    const q = origin.to(decompose(p).hub);
     return q.dx*q.dx - q.dx*q.dy + q.dy*q.dy <= 7;
 }
 

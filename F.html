@@ -70,7 +70,7 @@ const edges = iterate({
 }, onValues(zrot120), 3);
 
 function inBounds(p) {
-    const pvec = pt(0, 0).to(p);
+    const pvec = origin.to(p);
     const u = 2*pvec.dx - pvec.dy;
     const v = pvec.dot(vec(2, 2));
     const w = pvec.dot(vec(-2, 4));
@@ -97,5 +97,5 @@ pentagons({
     S: ray2ray(dots[1], dots[0], dots[1], dots[2]),
     t: ray2ray(dots[3], dots[4], dots[3], dots[2]),
     T: ray2ray(dots[3], dots[2], dots[3], dots[4]),
-}, paths(pt(0, 0), edgesFrom), 240);
+}, paths(origin, edgesFrom), 240);
 </script>
