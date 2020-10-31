@@ -38,7 +38,7 @@
     to the coordinates (u,v) on the triangular grid is given by
 
               1   -1/2                 u       x
-        Q = (            ),     i.e.  ( ) = Q ( )
+        A = (            ),     i.e.  ( ) = A ( )
               0  sqrt3/2               v       y
 
     and so "rotating by 120 degrees", which in the triangular grid
@@ -51,7 +51,7 @@
     is in the square grid represented by
 
                               0  -1
-        Q^{-1} R[2pi/3] Q = (       )
+        A^{-1} R[2pi/3] A = (       )
                               1  -1
 
     which is what zrot120 implements.
