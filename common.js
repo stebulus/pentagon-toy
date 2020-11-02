@@ -373,6 +373,13 @@ function storeCoords(ptvar, i) {
         });
 }
 
+function hues(n) {
+    // an ad hoc way to generate 15 tolerable pairs of hues
+    const center = mod(n, 5)*72;
+    const other = mod(center + 120 + mod(n, 3)*60, 360);
+    return {center: center, other: other}
+}
+
 const vertices = document.querySelector("#vertices");
 const dots = [];
 for (let i = 0; i < 5; i++) {
@@ -392,9 +399,9 @@ const labelLocation = centroid(dots);
 
 function pentagons(xfm, specs, hue) {
     const pentagong = document.querySelector("#pentagon-g");
-    pentagong.setAttribute("fill", "hsl(" + ((hue+180) % 360) + " 100% 50%)");
+    pentagong.setAttribute("fill", "hsl(" + hue.center + " 100% 50%)");
     const transformed = document.querySelector("#transformed");
-    transformed.setAttribute("fill", "hsl(" + hue + " 100% 50%)");
+    transformed.setAttribute("fill", "hsl(" + hue.other + " 100% 50%)");
     for (const spec of specs) {
         let base = transformed;
         for (const c of spec) {
