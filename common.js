@@ -115,10 +115,6 @@ Point.prototype.translate = function (v) {
     return pt(this.x + v.dx, this.y + v.dy);
 };
 
-Point.prototype.reflectInOrigin = function () {
-    return pt(-this.x, -this.y);
-};
-
 Point.polar = function (radius, angle) {
     return pt(radius*Math.cos(angle), radius*Math.sin(angle));
 };
@@ -323,9 +319,9 @@ function ray2rayflip(p1var, q1var, p2var, q2var) {
         const ang2 = p2.to(q2).degrees();
         const flip =
             "rotate(" + ang1 + " " + p1 + ")"
-            + " translate(" + p1 + ")"
+            + " translate(" + origin.to(p1) + ")"
             + " scale(1 -1)"
-            + " translate(" + p1.reflectInOrigin() + ")"
+            + " translate(" + p1.to(origin) + ")"
             + " rotate(" + (-ang1) + " " + p1 + ")";
         const translate = "translate(" + p1.to(p2) + ")";
         const rotate = "rotate(" + (ang2 - ang1) + " " + p2 + ")";
