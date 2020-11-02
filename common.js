@@ -163,19 +163,41 @@ function startDragging(v) {
     }
 }
 
+/*
+    A crude reactive framework.  A "Variable" contains a function to
+    compute its next value.  The arguments to that function are the
+    current values of other Variables; each Variable keeps track of
+    the Variables that depend on it, forming a directed acyclic graph.
+    Sources in the graph are "Store"s, whose values are set by code
+    outside the Variable graph.  Variables are updated all at once
+    by an "update event", which is scheduled when a Store is updated.
+*/
+
+// all Variables, sorted (dependencies before their dependents)
 const variables = [];
 
+/* usually created by the convenience function variable(),
+   which sets the .compute property
+*/
 class Variable {
     constructor(dependencies) {
+        // whether the value should be recomputed
         this.dirty = false;
+        // other variables that depend on this one
         this.dependents = [];
+        /* since dependencies are passed as arguments, they already
+           exist & are in the variables array, so appending this
+           variable maintains the sorting */
         variables.push(this);
+        // register this as a dependent of its dependencies
         for (const dep of dependencies)
             dep.dependents.push(this);
     }
 
     update() {
         if (this.dirty) {
+            /* we assume that this variable's dependencies are up to date
+               (see update()) */
             const newValue = this.compute();
             if (newValue != this.value) {
                 this.value = newValue;
@@ -187,12 +209,17 @@ class Variable {
     }
 }
 
+// ensure an update event is scheduled
+// (usually a side-effect of Store.prototype.set)
 update = (function () {
     let update_scheduled = false;
     return function () {
         if (!update_scheduled) {
             setTimeout(function () {
                 update_scheduled = false;
+                /* since variables are sorted, updating them in order
+                   ensures that each sees up-to-date values of its
+                   dependencies */
                 for (const v of variables)
                     v.update();
             });
@@ -201,6 +228,7 @@ update = (function () {
     };
 })();
 
+// a Variable that can be set by code outside the Variable graph
 class Store extends Variable {
     constructor(initialValue) {
         super([]);
@@ -210,8 +238,16 @@ class Store extends Variable {
         return this.newValue;
     }
     set(value) {
+        /* stash value for next update(); don't change value immediately,
+           because if we're being called indirectly from update(),
+           that could result in different Variables seeing different
+           values of this one during the same update event
+        */
         this.newValue = value;
         this.dirty = true;
+        /* ok to call update() on every call to set()
+           because update() doesn't schedule itself if already scheduled
+        */
         update();
     }
 }
@@ -224,6 +260,10 @@ function variable(dependencies, compute) {
     };
     return v;
 }
+
+/*
+    Variables for the pentagon application
+*/
 
 function visibility(boolvar, elem) {
     return variable([boolvar], function (vis) {
