@@ -2,12 +2,19 @@
 <meta charset="utf-8">
 <title>Regime F, Pentagon Toy</title>
 <link rel="stylesheet" type="text/css" href="style.css" />
+<div id="buttons">
+<button disabled="true" id="start-over" type="button">Start over</button>
+<button disabled="true" id="shrink" type="button">&minus;</button>
+<button disabled="true" id="enlarge" type="button">+</button>
+</div>
 <svg id="svg" viewBox="-500 -500 1000 1000">
-    <g id="transformed" fill-opacity="0.5" />
-    <g id="pentagon-g" fill-opacity="0.5">
-        <polygon id="pentagon" stroke="black" stroke-width="1mm" />
+    <g id="magnification">
+        <g id="transformed" fill-opacity="0.5" />
+        <g id="pentagon-g" fill-opacity="0.5">
+            <polygon id="pentagon" stroke="black" stroke-width="1mm" />
+        </g>
+        <g id="vertices" />
     </g>
-    <g id="vertices" />
 </svg>
 <script src="common.js"></script>
 <script>
@@ -98,4 +105,6 @@ pentagons({
     t: ray2ray(dots[3], dots[4], dots[3], dots[2]),
     T: ray2ray(dots[3], dots[2], dots[3], dots[4]),
 }, paths(origin, edgesFrom), hues(2));
+
+setUpButtons();
 </script>

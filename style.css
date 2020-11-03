@@ -13,3 +13,8 @@ body, svg {
     height: 100%;
 }
 body { background-color: white; }
+#buttons {
+    position: absolute;
+    top: 0;
+    right: 0;
+}

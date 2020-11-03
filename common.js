@@ -209,6 +209,9 @@ class Store extends Variable {
         */
         update();
     }
+    change(f) {
+        this.set(f(this.newValue));
+    }
 }
 
 function variable(dependencies, compute) {
@@ -314,12 +317,16 @@ function storageKey(i) {
     return document.location.pathname + "#point" + i;
 }
 
-function initialValue(i) {
+function originalDotPosition(i) {
+    return Point.polar(90, (i/5 - 1/4)*2*Math.PI);
+}
+
+function initialDotPosition(i) {
     try {
         const p = JSON.parse(storage.getItem(storageKey(i)));
         return pt(p.x, p.y);
     } catch (e) {
-        return Point.polar(90, (i/5 - 1/4)*2*Math.PI);
+        return originalDotPosition(i);
     }
 }
 
@@ -432,7 +439,7 @@ for (let i = 0; i < 5; i++) {
     const circle = document.createElementNS(SVGNS, "circle");
     circle.setAttribute("r", dotRadius);
     vertices.appendChild(circle);
-    const dot = new Store(initialValue(i));
+    const dot = new Store(initialDotPosition(i));
     dots.push(dot);
     centre(dot, circle);
     makeDraggable(circle, dot);
@@ -517,4 +524,32 @@ function paths(start, edgesFrom) {
     }
     paths.shift();
     return paths;
+}
+
+function setUpButton(selector, handle) {
+    const button = document.querySelector(selector);
+    button.addEventListener("click", handle);
+    button.removeAttribute("disabled");
+}
+
+function setUpButtons() {
+    const magFactor = Math.sqrt(2);
+    const magnification = new Store(1);
+    gtransform(
+        variable([magnification], function (mag) {
+            return "scale(" + mag + ")";
+        }),
+        document.querySelector("#magnification")
+    );
+    setUpButton("#shrink", function () {
+        magnification.change(function (x) { return x/magFactor; });
+    });
+    setUpButton("#enlarge", function () {
+        magnification.change(function (x) { return x*magFactor; });
+    });
+    setUpButton("#start-over", function () {
+        for (let i = 0; i < 5; i++)
+            dots[i].set(originalDotPosition(i));
+        magnification.set(1);
+    });
 }
