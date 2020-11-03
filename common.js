@@ -124,11 +124,14 @@ const zero = origin.to(origin);
 
 const SVGNS = "http://www.w3.org/2000/svg";
 
-const dragging = {offset: zero, target: null};
+const dragging = {};
 const svg = document.querySelector("svg");
-svg.addEventListener("mousemove", move, false);
-document.body.addEventListener("mouseup", stopDragging, false);
-document.body.addEventListener("mouseleave", stopDragging, false);
+svg.addEventListener("mousemove", move("mouse"), false);
+svg.addEventListener("touchmove", handleTouches(move), false);
+document.body.addEventListener("mouseup", stopDragging("mouse"), false);
+document.body.addEventListener("mouseleave", stopDragging("mouse"), false);
+document.body.addEventListener("touchcancel", handleTouches(stopDragging), false);
+document.body.addEventListener("touchend", handleTouches(stopDragging), false);
 
 function event2svg(event) {
     const p = svg.createSVGPoint();
@@ -138,24 +141,40 @@ function event2svg(event) {
     return pt(q.x, q.y);
 }
 
-function move(event) {
-    target = dragging.target;
-    if (target != null) {
+function move(key) {
+    return function (event) {
+        const drag = dragging[key];
+        if (drag === undefined)
+            return;
         const p = event2svg(event);
-        target.set(p.translate(dragging.offset));
+        drag.target.set(p.translate(drag.offset));
     }
 }
 
-function stopDragging(event) {
-    dragging.target = null;
+function stopDragging(key) {
+    return function (event) {
+        delete dragging[key];
+    }
 }
 
-function startDragging(v) {
+function startDragging(ptvar) {
+    return function (key) {
+        return function (event) {
+            const svgpt = event2svg(event);
+            dragging[key] = {
+                offset: svgpt.to(ptvar.value),
+                target: ptvar
+            };
+        }
+    }
+}
+
+function handleTouches(handle) {
     return function (event) {
-        const p = v.value;
-        const svgpt = event2svg(event);
-        dragging.offset = svgpt.to(p);
-        dragging.target = v;
+        event.preventDefault();
+        for (const touch of event.changedTouches) {
+            handle(touch.identifier)(touch);
+        }
     }
 }
 
@@ -376,16 +395,28 @@ function hues(n) {
     return {center: center, other: other}
 }
 
+function touchDevice() {
+    try {
+        const x = TouchEvent;
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+const dotRadius = touchDevice() ? "8mm" : "4mm";
+
 const vertices = document.querySelector("#vertices");
 const dots = [];
 for (let i = 0; i < 5; i++) {
     const circle = document.createElementNS(SVGNS, "circle");
-    circle.setAttribute("r", "3mm");
+    circle.setAttribute("r", dotRadius);
     vertices.appendChild(circle);
     const dot = new Store(initialValue(i));
     dots.push(dot);
     centre(dot, circle);
-    circle.addEventListener("mousedown", startDragging(dot), false);
+    circle.addEventListener("mousedown", startDragging(dot)("mouse"), false);
+    circle.addEventListener("touchstart", handleTouches(startDragging(dot)), false);
     storeCoords(dot, i);
 }
 polygon(dots, document.querySelector("#pentagon"));
