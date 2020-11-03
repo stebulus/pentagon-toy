@@ -122,62 +122,6 @@ Point.polar = function (radius, angle) {
 const origin = pt(0, 0);
 const zero = origin.to(origin);
 
-const SVGNS = "http://www.w3.org/2000/svg";
-
-const dragging = {};
-const svg = document.querySelector("svg");
-svg.addEventListener("mousemove", move("mouse"), false);
-svg.addEventListener("touchmove", handleTouches(move), false);
-document.body.addEventListener("mouseup", stopDragging("mouse"), false);
-document.body.addEventListener("mouseleave", stopDragging("mouse"), false);
-document.body.addEventListener("touchcancel", handleTouches(stopDragging), false);
-document.body.addEventListener("touchend", handleTouches(stopDragging), false);
-
-function event2svg(event) {
-    const p = svg.createSVGPoint();
-    p.x = event.clientX;
-    p.y = event.clientY;
-    const q = p.matrixTransform(svg.getScreenCTM().inverse());
-    return pt(q.x, q.y);
-}
-
-function move(key) {
-    return function (event) {
-        const drag = dragging[key];
-        if (drag === undefined)
-            return;
-        const p = event2svg(event);
-        drag.target.set(p.translate(drag.offset));
-    }
-}
-
-function stopDragging(key) {
-    return function (event) {
-        delete dragging[key];
-    }
-}
-
-function startDragging(ptvar) {
-    return function (key) {
-        return function (event) {
-            const svgpt = event2svg(event);
-            dragging[key] = {
-                offset: svgpt.to(ptvar.value),
-                target: ptvar
-            };
-        }
-    }
-}
-
-function handleTouches(handle) {
-    return function (event) {
-        event.preventDefault();
-        for (const touch of event.changedTouches) {
-            handle(touch.identifier)(touch);
-        }
-    }
-}
-
 /*
     A crude reactive framework.  A "Variable" contains a function to
     compute its next value.  The arguments to that function are the
@@ -388,6 +332,81 @@ function storeCoords(ptvar, i) {
         });
 }
 
+/*
+    Dragging, as input to the Variable graph
+*/
+
+/* things currently being dragged: id -> {offset, target}
+   id is "mouse" or a Touch.identifier
+   offset is the vector from the mouse/touch location to the target
+   target is the Variable containing the point */
+const dragging = {};
+
+const svg = document.querySelector("svg");
+svg.addEventListener("mousemove", move("mouse"), false);
+svg.addEventListener("touchmove", handleTouches(move), false);
+document.body.addEventListener("mouseup", stopDragging("mouse"), false);
+document.body.addEventListener("mouseleave", stopDragging("mouse"), false);
+document.body.addEventListener("touchcancel", handleTouches(stopDragging), false);
+document.body.addEventListener("touchend", handleTouches(stopDragging), false);
+
+/*
+    Make element draggable, setting ptvar (a Store) to its location
+    (a Point in SVG coordinates).  Note that this doesn't actually
+    make the element move, because it doesn't know which attributes
+    to set for that.  Use centre() or xy() or similar to wire the
+    element up to move.
+*/
+function makeDraggable(element, ptvar) {
+    element.addEventListener("mousedown", startDragging(ptvar)("mouse"), false);
+    element.addEventListener("touchstart", handleTouches(startDragging(ptvar)), false);
+}
+
+function event2svg(event) {
+    const p = svg.createSVGPoint();
+    p.x = event.clientX;
+    p.y = event.clientY;
+    const q = p.matrixTransform(svg.getScreenCTM().inverse());
+    return pt(q.x, q.y);
+}
+
+function move(key) {
+    return function (event) {
+        const drag = dragging[key];
+        if (drag === undefined)
+            return;
+        const p = event2svg(event);
+        drag.target.set(p.translate(drag.offset));
+    }
+}
+
+function stopDragging(key) {
+    return function (event) {
+        delete dragging[key];
+    }
+}
+
+function startDragging(ptvar) {
+    return function (key) {
+        return function (event) {
+            const svgpt = event2svg(event);
+            dragging[key] = {
+                offset: svgpt.to(ptvar.value),
+                target: ptvar
+            };
+        }
+    }
+}
+
+function handleTouches(handle) {
+    return function (event) {
+        event.preventDefault();
+        for (const touch of event.changedTouches) {
+            handle(touch.identifier)(touch);
+        }
+    }
+}
+
 function hues(n) {
     // an ad hoc way to generate 15 tolerable pairs of hues
     const center = mod(n, 5)*72;
@@ -404,6 +423,7 @@ function touchDevice() {
     }
 }
 
+const SVGNS = "http://www.w3.org/2000/svg";
 const dotRadius = touchDevice() ? "8mm" : "4mm";
 
 const vertices = document.querySelector("#vertices");
@@ -415,8 +435,7 @@ for (let i = 0; i < 5; i++) {
     const dot = new Store(initialValue(i));
     dots.push(dot);
     centre(dot, circle);
-    circle.addEventListener("mousedown", startDragging(dot)("mouse"), false);
-    circle.addEventListener("touchstart", handleTouches(startDragging(dot)), false);
+    makeDraggable(circle, dot);
     storeCoords(dot, i);
 }
 polygon(dots, document.querySelector("#pentagon"));
