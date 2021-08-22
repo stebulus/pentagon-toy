@@ -423,15 +423,6 @@ function handleTouches(handle) {
     }
 }
 
-function touchDevice() {
-    try {
-        const x = TouchEvent;
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
 function hues(n) {
     // an ad hoc way to generate 15 tolerable pairs of hues
     const center = mod(n, 5)*72;
@@ -440,7 +431,7 @@ function hues(n) {
 }
 
 const SVGNS = "http://www.w3.org/2000/svg";
-const dotRadius = touchDevice() ? "8mm" : "4mm";
+const dotRadius = window.matchMedia("(pointer: coarse)").matches ? "8mm" : "4mm";
 
 const vertices = document.querySelector("#vertices");
 const dots = [];
