@@ -369,14 +369,13 @@ document.body.addEventListener("touchend", handleTouches(stopDragging), false);
 
 /*
     Make element draggable, setting ptvar (a Store) to its location
-    (a Point in SVG coordinates).  Note that this doesn't actually
-    make the element move, because it doesn't know which attributes
-    to set for that.  Use centre() or xy() or similar to wire the
-    element up to move.
+    (a Point in SVG coordinates).  setAttributes is a function such
+    as centre() or xy().
 */
-function makeDraggable(element, ptvar) {
+function makeDraggable(element, ptvar, setAttributes) {
     element.addEventListener("mousedown", startDragging(ptvar)("mouse"), false);
     element.addEventListener("touchstart", handleTouches(startDragging(ptvar)), false);
+    setAttributes(ptvar, element)
 }
 
 // The location of the given event, as a Point
@@ -441,8 +440,7 @@ for (let i = 0; i < 5; i++) {
     vertices.appendChild(circle);
     const dot = new Store(initialDotPosition(i));
     dots.push(dot);
-    centre(dot, circle);
-    makeDraggable(circle, dot);
+    makeDraggable(circle, dot, centre);
     storeCoords(dot, i);
 }
 polygon(dots, document.querySelector("#pentagon"));
