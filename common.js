@@ -119,6 +119,10 @@ Point.polar = function (radius, angle) {
     return pt(radius*Math.cos(angle), radius*Math.sin(angle));
 };
 
+midpoint = function (p, q) {
+    return p.translate(p.to(q).scale(0.5));
+}
+
 const origin = pt(0, 0);
 const zero = origin.to(origin);
 
@@ -264,8 +268,7 @@ function gtransform(tvar, g) {
 
 function rotate180(pvar, qvar) {
     return variable([pvar, qvar], function (p, q) {
-        const m = p.translate(p.to(q).scale(0.5));
-        return "rotate(180 " + m + ")";
+        return "rotate(180 " + midpoint(p, q) + ")";
     });
 }
 
@@ -407,7 +410,6 @@ function startDragging(ptvar) {
 
 function handleTouches(handle) {
     return function (event) {
-        event.preventDefault();
         for (const touch of event.changedTouches) {
             handle(touch.identifier)(touch);
         }
