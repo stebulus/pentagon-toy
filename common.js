@@ -375,7 +375,7 @@ document.body.addEventListener("touchend", handleTouches(stopDragging), false);
 function makeDraggable(element, ptvar, setAttributes) {
     element.addEventListener("mousedown", startDragging(ptvar)("mouse"), false);
     element.addEventListener("touchstart", handleTouches(startDragging(ptvar)), false);
-    setAttributes(ptvar, element)
+    setAttributes(ptvar, element);
 }
 
 // The location of the given event, as a Point
