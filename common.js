@@ -312,6 +312,10 @@ function centroid(pointvars) {
     });
 }
 
+/*
+    Save the positions of vertices in local storage, if available.
+*/
+
 try {
     storage = window.localStorage;
 } catch (error) {
