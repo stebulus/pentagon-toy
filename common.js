@@ -422,13 +422,6 @@ function handleTouches(handle) {
     }
 }
 
-function hues(n) {
-    // an ad hoc way to generate 15 tolerable pairs of hues
-    const center = mod(n, 5)*72;
-    const other = mod(center + 120 + mod(n, 3)*60, 360);
-    return {center: center, other: other}
-}
-
 function touchDevice() {
     try {
         const x = TouchEvent;
@@ -436,6 +429,13 @@ function touchDevice() {
     } catch (e) {
         return false;
     }
+}
+
+function hues(n) {
+    // an ad hoc way to generate 15 tolerable pairs of hues
+    const center = mod(n, 5)*72;
+    const other = mod(center + 120 + mod(n, 3)*60, 360);
+    return {center: center, other: other}
 }
 
 const SVGNS = "http://www.w3.org/2000/svg";
