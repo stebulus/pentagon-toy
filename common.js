@@ -462,10 +462,10 @@ function pentagons(xfm, specs, hue) {
 
 function pathQuality(path) {
     let quality = 0;
-    for (let i = 0; i < path.length-1; i++)
-        if (path.charAt(i) == path.charAt(i+1))
-            quality--;
     const arr = Array.from(path);
+    for (let i = 0; i < path.length-1; i++)
+        if (arr[i] == arr[i+1])
+            quality--;
     arr.sort();
     for (let i = 0; i < arr.length-1; i++)
         if (arr[i] != arr[i+1])
