@@ -1,22 +1,6 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<title>Regime A, Pentagon Toy</title>
-<link rel="stylesheet" type="text/css" href="style.css" />
-<div id="buttons">
-<button disabled="true" id="start-over" type="button">Start over</button>
-<button disabled="true" id="shrink" type="button">&minus;</button>
-<button disabled="true" id="enlarge" type="button">+</button>
-</div>
-<svg id="svg" viewBox="-500 -500 1000 1000">
-    <g id="magnification">
-        <g id="transformed" fill-opacity="0.5" />
-        <g id="pentagon-g" fill-opacity="0.5">
-            <polygon id="pentagon" stroke="black" stroke-width="1mm" />
-        </g>
-        <g id="vertices" />
-    </g>
-</svg>
-<script src="common.js"></script>
+---
+---
+{% include tiling.html letter="A" %}
 <script>
 
 const edges = {
