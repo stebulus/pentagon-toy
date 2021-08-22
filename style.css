@@ -17,8 +17,4 @@ body { background-color: white; }
     position: absolute;
     top: 0;
     right: 0;
-    font-size: 100px;
-}
-#buttons button {
-    font-size: 100%;
 }

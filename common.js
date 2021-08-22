@@ -416,6 +416,7 @@ function startDragging(ptvar) {
 
 function handleTouches(handle) {
     return function (event) {
+        event.preventDefault();
         for (const touch of event.changedTouches) {
             handle(touch.identifier)(touch);
         }
