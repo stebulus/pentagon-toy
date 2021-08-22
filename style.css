@@ -30,3 +30,10 @@ body { background-color: white; }
         width: 100px;
     }
 }
+.draggable:hover {
+    cursor: move;
+    cursor: grab;
+}
+.dragging:hover {
+    cursor: grabbing;
+}

@@ -354,7 +354,8 @@ function storeCoords(ptvar, i) {
 */
 
 const dragging = {
-    target: null,  // Variable for moving point (null if not dragging)
+    targetVar: null,  // Variable for moving point (null if not dragging)
+    targetElem: null,  // Element being moved (null if not dragging)
     offset: zero,  // vector from mouse/touch location to target
 };
 
@@ -372,6 +373,7 @@ document.body.addEventListener("touchend", stopDragging, false);
     as centre() or xy().
 */
 function makeDraggable(element, ptvar, setAttributes) {
+    element.classList.add("draggable");
     element.addEventListener("mousedown", startDragging(ptvar), false);
     element.addEventListener("touchstart", startDragging(ptvar), false);
     setAttributes(ptvar, element);
@@ -389,21 +391,27 @@ function eventPoint(event) {
 }
 
 function drag(event) {
-    target = dragging.target;
-    if (target != null) {
-        target.set(eventPoint(event).translate(dragging.offset));
+    targetVar = dragging.targetVar;
+    if (targetVar != null) {
+        targetVar.set(eventPoint(event).translate(dragging.offset));
         event.preventDefault();
     }
 }
 
 function stopDragging() {
-    dragging.target = null;
+    targetElem = dragging.targetElem;
+    if (targetElem !== null)
+        targetElem.classList.remove("dragging");
+    dragging.targetVar = null;
+    dragging.targetElem = null;
 }
 
 function startDragging(ptvar) {
     return function (event) {
         dragging.offset = eventPoint(event).to(ptvar.value);
-        dragging.target = ptvar;
+        dragging.targetVar = ptvar;
+        dragging.targetElem = event.target;
+        dragging.targetElem.classList.add("dragging");
     }
 }
 
