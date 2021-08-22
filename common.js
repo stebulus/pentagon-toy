@@ -375,7 +375,8 @@ function makeDraggable(element, ptvar) {
     element.addEventListener("touchstart", handleTouches(startDragging(ptvar)), false);
 }
 
-function event2svg(event) {
+// The location of the given event, as a Point
+function eventPoint(event) {
     const p = svg.createSVGPoint();
     p.x = event.clientX;
     p.y = event.clientY;
@@ -388,8 +389,7 @@ function move(key) {
         const drag = dragging[key];
         if (drag === undefined)
             return;
-        const p = event2svg(event);
-        drag.target.set(p.translate(drag.offset));
+        drag.target.set(eventPoint(event).translate(drag.offset));
     }
 }
 
@@ -402,9 +402,8 @@ function stopDragging(key) {
 function startDragging(ptvar) {
     return function (key) {
         return function (event) {
-            const svgpt = event2svg(event);
             dragging[key] = {
-                offset: svgpt.to(ptvar.value),
+                offset: eventPoint(event).to(ptvar.value),
                 target: ptvar
             };
         }
