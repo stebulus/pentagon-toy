@@ -266,12 +266,14 @@ function gtransform(tvar, g) {
     });
 }
 
+/* The transform that rotates line segment PQ by 180 degrees. */
 function rotate180(pvar, qvar) {
     return variable([pvar, qvar], function (p, q) {
         return "rotate(180 " + midpoint(p, q) + ")";
     });
 }
 
+/* The transform that moves ray P1Q1 to ray P2Q2. */
 function ray2ray(p1var, q1var, p2var, q2var) {
     return variable([p1var, q1var, p2var, q2var], function (p1, q1, p2, q2) {
         const translate = "translate(" + p1.to(p2) + ")";
@@ -282,6 +284,7 @@ function ray2ray(p1var, q1var, p2var, q2var) {
     });
 }
 
+/* The transform that moves ray P1Q1 to ray P2Q2 and reflects across it. */
 function ray2rayflip(p1var, q1var, p2var, q2var) {
     return variable([p1var, q1var, p2var, q2var], function (p1, q1, p2, q2) {
         const ang1 = p1.to(q1).degrees();
