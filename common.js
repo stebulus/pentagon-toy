@@ -353,19 +353,18 @@ function storeCoords(ptvar, i) {
     Dragging, as input to the Variable graph
 */
 
-/* things currently being dragged: id -> {offset, target}
-   id is "mouse" or a Touch.identifier
-   offset is the vector from the mouse/touch location to the target
-   target is the Variable containing the point */
-const dragging = {};
+const dragging = {
+    target: null,  // Variable for moving point (null if not dragging)
+    offset: zero,  // vector from mouse/touch location to target
+};
 
 const svg = document.querySelector("svg");
-svg.addEventListener("mousemove", move("mouse"), false);
-svg.addEventListener("touchmove", handleTouches(move), false);
-document.body.addEventListener("mouseup", stopDragging("mouse"), false);
-document.body.addEventListener("mouseleave", stopDragging("mouse"), false);
-document.body.addEventListener("touchcancel", handleTouches(stopDragging), false);
-document.body.addEventListener("touchend", handleTouches(stopDragging), false);
+svg.addEventListener("mousemove", drag, false);
+svg.addEventListener("touchmove", drag, false);
+document.body.addEventListener("mouseup", stopDragging, false);
+document.body.addEventListener("mouseleave", stopDragging, false);
+document.body.addEventListener("touchcancel", stopDragging, false);
+document.body.addEventListener("touchend", stopDragging, false);
 
 /*
     Make element draggable, setting ptvar (a Store) to its location
@@ -373,52 +372,38 @@ document.body.addEventListener("touchend", handleTouches(stopDragging), false);
     as centre() or xy().
 */
 function makeDraggable(element, ptvar, setAttributes) {
-    element.addEventListener("mousedown", startDragging(ptvar)("mouse"), false);
-    element.addEventListener("touchstart", handleTouches(startDragging(ptvar)), false);
+    element.addEventListener("mousedown", startDragging(ptvar), false);
+    element.addEventListener("touchstart", startDragging(ptvar), false);
     setAttributes(ptvar, element);
 }
 
-// The location of the given event, as a Point
+// The location of the given mouse or touch event, as a Point
 function eventPoint(event) {
     const p = svg.createSVGPoint();
-    p.x = event.clientX;
-    p.y = event.clientY;
+    const locatedEvent = event.targetTouches === undefined
+        ? event : event.targetTouches[0];
+    p.x = locatedEvent.clientX;
+    p.y = locatedEvent.clientY;
     const q = p.matrixTransform(svg.getScreenCTM().inverse());
     return pt(q.x, q.y);
 }
 
-function move(key) {
-    return function (event) {
-        const drag = dragging[key];
-        if (drag === undefined)
-            return;
-        drag.target.set(eventPoint(event).translate(drag.offset));
+function drag(event) {
+    target = dragging.target;
+    if (target != null) {
+        target.set(eventPoint(event).translate(dragging.offset));
+        event.preventDefault();
     }
 }
 
-function stopDragging(key) {
-    return function (event) {
-        delete dragging[key];
-    }
+function stopDragging() {
+    dragging.target = null;
 }
 
 function startDragging(ptvar) {
-    return function (key) {
-        return function (event) {
-            dragging[key] = {
-                offset: eventPoint(event).to(ptvar.value),
-                target: ptvar
-            };
-        }
-    }
-}
-
-function handleTouches(handle) {
     return function (event) {
-        event.preventDefault();
-        for (const touch of event.changedTouches) {
-            handle(touch.identifier)(touch);
-        }
+        dragging.offset = eventPoint(event).to(ptvar.value);
+        dragging.target = ptvar;
     }
 }
 
