@@ -1,8 +1,6 @@
 ---
 ---
-{% include tiling.html letter="N" hue_index=8 %}
-<script>
-
+{% capture setup_code %}
 const xfm = {
     a: ray2rayflip(dots[0], dots[1], dots[0], dots[1]),
     b: rotate180(dots[1], dots[2]),
@@ -22,9 +20,9 @@ const xfm = {
     z: ray2ray(dots[3], dots[2], dots[4], dots[0]),
 };
 
-const edgeClasses = [[], [], []];
+const edges = [[], [], []];
 
-edgeClasses[0].push({
+edges[0].push({
     a: vec(2, 0),
     b: vec(1, 3),
     c: vec(-1, 3),
@@ -33,9 +31,9 @@ edgeClasses[0].push({
     f: vec(-1, -3),
     g: vec(1, -3),
 });
-edgeClasses[0].push(negated(edgeClasses[0][0]));
+edges[0].push(negated(edges[0][0]));
 
-edgeClasses[1].push({
+edges[1].push({
     a: vec(-2, 0),
     q: vec(-1, 3),
     r: vec(2, 2),
@@ -44,9 +42,9 @@ edgeClasses[1].push({
     S: vec(2, -2),
     t: vec(-1, -3),
 });
-edgeClasses[1].push(negated(edgeClasses[1][0]));
+edges[1].push(negated(edges[1][0]));
 
-edgeClasses[2].push({
+edges[2].push({
     x: vec(0, 2),
     y: vec(3, 1),
     r: vec(2, -2),
@@ -55,37 +53,26 @@ edgeClasses[2].push({
     S: vec(-2, -2),
     z: vec(-3, 1),
 });
-edgeClasses[2].push(negated(edgeClasses[2][0]));
+edges[2].push(negated(edges[2][0]));
 
-function inBounds(p) {
-    return -7 <= p.x && p.x <= 8 && -8 <= p.y && p.y <= 6;
-}
-
-function edgesFrom(p) {
-    let edges = undefined;
+function edgeVecs(p) {
     switch (mod(p.x, 7)) {
-        case 0: edges = edgeClasses[0][0]; break;
-        case 1: edges = edgeClasses[0][1]; break;
-        case 2: edges = edgeClasses[1][0]; break;
-        case 6: edges = edgeClasses[1][1]; break;
+        case 0: return edges[0][0];
+        case 1: return edges[0][1];
+        case 2: return edges[1][0];
+        case 6: return edges[1][1];
         case 4:
             let y = p.y;
             if (mod(div(p.x, 7), 2) == 1) y += 3;
             switch (mod(y, 6)) {
-                case 2: edges = edgeClasses[2][0]; break;
-                case 4: edges = edgeClasses[2][1]; break;
+                case 2: return edges[2][0];
+                case 4: return edges[2][1];
             }
-            break;
     }
-    const outEdges = {};
-    for (const xfm in edges) {
-        const neighbour = p.translate(edges[xfm]);
-        if (inBounds(neighbour))
-            outEdges[xfm] = neighbour;
-    }
-    return outEdges;
 }
 
-pentagons(xfm, paths(origin, edgesFrom));
-setUpButtons();
-</script>
+function inBounds(p) {
+    return -7 <= p.x && p.x <= 8 && -8 <= p.y && p.y <= 6;
+}
+{% endcapture %}
+{% include tiling.html letter="N" hue_index=8 setup_code=setup_code %}

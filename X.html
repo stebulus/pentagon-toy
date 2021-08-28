@@ -1,8 +1,6 @@
 ---
 ---
-{% include tiling.html letter="X" hue_index=12 %}
-<script>
-
+{% capture setup_code %}
 const xfm = {
     a: ray2rayflip(dots[0], dots[1], dots[0], dots[1]),
     b: ray2rayflip(dots[2], dots[3], dots[1], dots[2]),
@@ -17,9 +15,9 @@ const xfm = {
     S: ray2ray(dots[3], dots[2], dots[3], dots[4]),
 };
 
-const edgeClasses = [[], [], [], []];
+const edges = [[], [], [], []];
 
-edgeClasses[0].push({
+edges[0].push({
     a: vec(0, 1),
     b: vec(1, 2),
     c: vec(1, 1),
@@ -28,9 +26,9 @@ edgeClasses[0].push({
     e: vec(-1, -1),
     f: vec(-1, 0),
 });
-edgeClasses[0].push(negated(edgeClasses[0][0]));
+edges[0].push(negated(edges[0][0]));
 
-edgeClasses[1].push({
+edges[1].push({
     a: vec(0, -1),
     q: vec(1, 1),
     r: vec(1, 2),
@@ -38,13 +36,19 @@ edgeClasses[1].push({
     S: vec(0, 1),
     f: vec(-1, 0),
 });
-edgeClasses[1].push(negated(swapped(edgeClasses[1][0])));
+edges[1].push(negated(swapped(edges[1][0])));
 
-edgeClasses[2].push(swapped(edgeClasses[0][1]));
-edgeClasses[2].push(swapped(edgeClasses[0][0]));
+edges[2].push(swapped(edges[0][1]));
+edges[2].push(swapped(edges[0][0]));
 
-edgeClasses[3].push(negated(edgeClasses[1][1]));
-edgeClasses[3].push(negated(edgeClasses[1][0]));
+edges[3].push(negated(edges[1][1]));
+edges[3].push(negated(edges[1][0]));
+
+function edgeVecs(p) {
+    const i = mod(p.x + p.y, 4)
+    const j = mod(p.x, 2)
+    return edges[i][j];
+}
 
 function inBounds(p) {
     return (
@@ -55,20 +59,5 @@ function inBounds(p) {
         || (p.y == -3 && -5 <= p.x && p.x <= -40)
     );
 }
-
-function edgesFrom(p) {
-    const i = mod(p.x + p.y, 4)
-    const j = mod(p.x, 2)
-    const edges = edgeClasses[i][j];
-    const outEdges = {};
-    for (const xfm in edges) {
-        const neighbour = p.translate(edges[xfm]);
-        if (inBounds(neighbour))
-            outEdges[xfm] = neighbour;
-    }
-    return outEdges;
-}
-
-pentagons(xfm, paths(origin, edgesFrom));
-setUpButtons();
-</script>
+{% endcapture %}
+{% include tiling.html letter="X" hue_index=12 setup_code=setup_code %}

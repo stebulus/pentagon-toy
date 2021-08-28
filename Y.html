@@ -1,8 +1,6 @@
 ---
 ---
-{% include tiling.html letter="Y" hue_index=13 %}
-<script>
-
+{% capture setup_code %}
 const xfm = {
     a: ray2rayflip(dots[4], dots[3], dots[1], dots[0]),
     b: rotate180(dots[1], dots[2]),
@@ -24,9 +22,9 @@ const xfm = {
     m: rotate180(dots[4], dots[0]),
 };
 
-const edgeClasses = [];
+const edges = [];
 
-edgeClasses[0] = {
+edges[0] = {
     a: vec(0, 1),
     b: vec(1, 0),
     c: vec(1, -1),
@@ -36,7 +34,7 @@ edgeClasses[0] = {
     F: vec(-1, 1),
 };
 
-edgeClasses[1] = {
+edges[1] = {
     p: vec(1, 1),
     q: vec(0, 1),
     r: vec(-1, 1),
@@ -45,7 +43,7 @@ edgeClasses[1] = {
     u: vec(1, -1),
 };
 
-edgeClasses[2] = {
+edges[2] = {
     i: vec(1, 0),
     q: vec(0, -1),
     j: vec(-1, 0),
@@ -54,9 +52,13 @@ edgeClasses[2] = {
     m: vec(0, 1),
 };
 
-edgeClasses[3] = negated(edgeClasses[2]);
-edgeClasses[4] = negated(edgeClasses[1]);
-edgeClasses[5] = negated(edgeClasses[0]);
+edges[3] = negated(edges[2]);
+edges[4] = negated(edges[1]);
+edges[5] = negated(edges[0]);
+
+function edgeVecs(p) {
+    return edges[mod(p.y - 2*p.x, 7)];
+}
 
 function inBounds(p) {
     const u = p.y - 2*p.x;
@@ -64,18 +66,5 @@ function inBounds(p) {
     const w = 2*p.x + p.y;
     return -6 <= u && u <= 7 && -7 <= v && v <= 8 && -5 <= w;
 }
-
-function edgesFrom(p) {
-    const edges = edgeClasses[mod(p.y - 2*p.x, 7)];
-    const outEdges = {};
-    for (const xfm in edges) {
-        const neighbour = p.translate(edges[xfm]);
-        if (inBounds(neighbour))
-            outEdges[xfm] = neighbour;
-    }
-    return outEdges;
-}
-
-pentagons(xfm, paths(origin, edgesFrom));
-setUpButtons();
-</script>
+{% endcapture %}
+{% include tiling.html letter="Y" hue_index=13 setup_code=setup_code %}

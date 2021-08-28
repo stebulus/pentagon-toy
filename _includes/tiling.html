@@ -25,3 +25,8 @@
     </g>
 </svg>
 <script src="common.js"></script>
+<script>
+{{ include.setup_code }}
+pentagons(xfm, paths(origin, neighbours(edgeVecs, inBounds)));
+setUpButtons();
+</script>

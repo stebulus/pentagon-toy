@@ -1,8 +1,6 @@
 ---
 ---
-{% include tiling.html letter="V" hue_index=10 %}
-<script>
-
+{% capture setup_code %}
 const xfm = {
     a: ray2ray(dots[4], dots[0], dots[1], dots[0]),
     A: ray2ray(dots[0], dots[4], dots[0], dots[1]),
@@ -17,9 +15,9 @@ const xfm = {
     S: ray2ray(dots[0], dots[1], dots[0], dots[4]),
 };
 
-const edgeClasses = [[], [], [], []];
+const edges = [[], [], [], []];
 
-edgeClasses[0].push({
+edges[0].push({
     a: vec(0, 1),
     A: vec(0, 1),
     b: vec(1, 0),
@@ -27,9 +25,9 @@ edgeClasses[0].push({
     d: vec(-1, 0),
     e: vec(-1, 1),
 });
-edgeClasses[0].push(negated(edgeClasses[0][0]));
+edges[0].push(negated(edges[0][0]));
 
-edgeClasses[1].push({
+edges[1].push({
     p: vec(-1, 0),
     q: vec(0, 1),
     r: vec(1, 1),
@@ -37,31 +35,22 @@ edgeClasses[1].push({
     s: vec(0, -1),
     S: vec(0, -1),
 });
-edgeClasses[1].push(swapped(negated(edgeClasses[1][0])));
+edges[1].push(swapped(negated(edges[1][0])));
 
-edgeClasses[2].push(swapped(edgeClasses[0][1]));
-edgeClasses[2].push(swapped(edgeClasses[0][0]));
+edges[2].push(swapped(edges[0][1]));
+edges[2].push(swapped(edges[0][0]));
 
-edgeClasses[3].push(negated(edgeClasses[1][1]));
-edgeClasses[3].push(negated(edgeClasses[1][0]));
+edges[3].push(negated(edges[1][1]));
+edges[3].push(negated(edges[1][0]));
+
+function edgeVecs(p) {
+    const i = mod(p.x + p.y, 4)
+    const j = mod(p.x, 2)
+    return edges[i][j];
+}
 
 function inBounds(p) {
     return Math.abs(p.x) <= 2 && Math.abs(p.y) <= 2
 }
-
-function edgesFrom(p) {
-    const i = mod(p.x + p.y, 4)
-    const j = mod(p.x, 2)
-    const edges = edgeClasses[i][j];
-    const outEdges = {};
-    for (const xfm in edges) {
-        const neighbour = p.translate(edges[xfm]);
-        if (inBounds(neighbour))
-            outEdges[xfm] = neighbour;
-    }
-    return outEdges;
-}
-
-pentagons(xfm, paths(origin, edgesFrom));
-setUpButtons();
-</script>
+{% endcapture %}
+{% include tiling.html letter="V" hue_index=10 setup_code=setup_code %}

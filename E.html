@@ -1,7 +1,14 @@
 ---
 ---
-{% include tiling.html letter="E" hue_index=1 %}
-<script>
+{% capture setup_code %}
+const xfm = {
+    f: rotate180(dots[0], dots[1]),
+    a: ray2rayflip(dots[3], dots[4], dots[1], dots[2]),
+    c: ray2rayflip(dots[0], dots[4], dots[3], dots[2]),
+    h: ray2rayflip(dots[3], dots[2], dots[0], dots[4]),
+    r: ray2rayflip(dots[1], dots[2], dots[3], dots[4]),
+    R: ray2rayflip(dots[2], dots[1], dots[4], dots[3]),
+};
 
 const edges = [];
 edges[0] = {
@@ -16,15 +23,8 @@ edges[2] = negated(edges[0]);
 edges[6] = swapped(negated(edges[0]));
 edges[8] = swapped(edges[0]);
 
-function edgesFrom(p) {
-    const edgeVecs = edges[mod(p.y - p.x, 12)];
-    const outEdges = {}
-    for (const xfm in edgeVecs) {
-        const neighbour = p.translate(edgeVecs[xfm]);
-        if (inBounds(neighbour))
-            outEdges[xfm] = neighbour;
-    }
-    return outEdges;
+function edgeVecs(p) {
+    return edges[mod(p.y - p.x, 12)];
 }
 
 function inBounds(p) {
@@ -32,15 +32,5 @@ function inBounds(p) {
     const v = p.x + p.y;
     return -16 <= u && u < 14 && Math.abs(v) <= 16;
 }
-
-pentagons({
-    f: rotate180(dots[0], dots[1]),
-    a: ray2rayflip(dots[3], dots[4], dots[1], dots[2]),
-    c: ray2rayflip(dots[0], dots[4], dots[3], dots[2]),
-    h: ray2rayflip(dots[3], dots[2], dots[0], dots[4]),
-    r: ray2rayflip(dots[1], dots[2], dots[3], dots[4]),
-    R: ray2rayflip(dots[2], dots[1], dots[4], dots[3]),
-}, paths(origin, edgesFrom));
-
-setUpButtons();
-</script>
+{% endcapture %}
+{% include tiling.html letter="E" hue_index=1 setup_code=setup_code %}

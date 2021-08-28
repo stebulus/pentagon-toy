@@ -1,41 +1,30 @@
 ---
 ---
-{% include tiling.html letter="A" hue_index=0 %}
-<script>
+{% capture setup_code %}
+const xfm = {
+    a: rotate180(dots[0], dots[1]),
+    b: rotate180(dots[4], dots[0]),
+    h: rotate180(dots[2], dots[3]),
+    u: ray2ray(dots[4], dots[3], dots[1], dots[2]),
+    v: ray2ray(dots[1], dots[2], dots[4], dots[3]),
+};
 
-const edges = {
+const edges = [];
+edges[0] = {
     h: vec(1, 0),
     v: vec(0, 3),
     u: vec(0, -3),
     a: vec(-1, -1),
     b: vec(-1, 2),
 };
-const edgesFlipped = {};
-for (const xfm in edges)
-    edgesFlipped[xfm] = edges[xfm].negate();
+edges[1] = negated(edges[0]);
 
-function edgesFrom(p) {
-    const flipped = p.x % 2 == 0 ? edges : edgesFlipped;
-    const outEdges = {}
-    for (const xfm in flipped) {
-        const neighbour = p.translate(flipped[xfm]);
-        if (inBounds(neighbour))
-            outEdges[xfm] = neighbour;
-    }
-    return outEdges;
+function edgeVecs(p) {
+    return edges[mod(p.x, 2)];
 }
 
 function inBounds(p) {
     return Math.abs(p.x) <= 2 && Math.abs(p.y) <= 7;
 }
-
-pentagons({
-    a: rotate180(dots[0], dots[1]),
-    b: rotate180(dots[4], dots[0]),
-    h: rotate180(dots[2], dots[3]),
-    u: ray2ray(dots[4], dots[3], dots[1], dots[2]),
-    v: ray2ray(dots[1], dots[2], dots[4], dots[3]),
-}, paths(origin, edgesFrom));
-
-setUpButtons();
-</script>
+{% endcapture %}
+{% include tiling.html letter="A" hue_index=0 setup_code=setup_code %}

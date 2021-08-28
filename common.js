@@ -535,6 +535,19 @@ function paths(start, edgesFrom) {
     return paths;
 }
 
+function neighbours(allEdgeVecs, accept) {
+    return function (p) {
+        const vecs = allEdgeVecs(p);
+        const result = {};
+        for (const name in vecs) {
+            const neighbour = p.translate(vecs[name]);
+            if (accept(neighbour))
+                result[name] = neighbour;
+        }
+        return result;
+    };
+}
+
 function setUpButton(selector, handle) {
     const button = document.querySelector(selector);
     button.addEventListener("click", handle);

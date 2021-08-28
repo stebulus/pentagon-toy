@@ -1,8 +1,6 @@
 ---
 ---
-{% include tiling.html letter="K" hue_index=5 %}
-<script>
-
+{% capture setup_code %}
 const xfm = {
     a: rotate180(dots[0], dots[1]),
     b: ray2ray(dots[1], dots[0], dots[1], dots[2]),
@@ -21,8 +19,9 @@ const xfm = {
     t: ray2ray(dots[4], dots[3], dots[4], dots[0]),
     T: ray2ray(dots[3], dots[4], dots[0], dots[4]),
 };
-const edgeSets = [[], []];
-edgeSets[0].push({
+
+const edges = [[], []];
+edges[0].push({
     a: vec(1, 0),
     b: vec(0, -1),
     B: vec(0, -1),
@@ -32,8 +31,8 @@ edgeSets[0].push({
     e: vec(0, 1),
     E: vec(0, 1),
 });
-edgeSets[0].push(negated(edgeSets[0][0]));
-edgeSets[1].push({
+edges[0].push(negated(edges[0][0]));
+edges[1].push({
     p: vec(0, 1),
     P: vec(0, 1),
     q: vec(1, 0),
@@ -43,23 +42,14 @@ edgeSets[1].push({
     t: vec(-1, -1),
     T: vec(-1, -1),
 });
-edgeSets[1].push(negated(edgeSets[1][0]));
+edges[1].push(negated(edges[1][0]));
+
+function edgeVecs(p) {
+    return edges[mod(p.y, 2)][mod(p.x, 2)];
+}
 
 function inBounds(p) {
     return Math.abs(p.x) <= 2 && Math.abs(p.y) <= 2
 }
-
-function edgesFrom(p) {
-    const edges = edgeSets[mod(p.y, 2)][mod(p.x, 2)]
-    const outEdges = [];
-    for (const xfm in edges) {
-        const neighbour = p.translate(edges[xfm]);
-        if (inBounds(neighbour))
-            outEdges[xfm] = neighbour;
-    }
-    return outEdges;
-}
-
-pentagons(xfm, paths(origin, edgesFrom));
-setUpButtons();
-</script>
+{% endcapture %}
+{% include tiling.html letter="K" hue_index=5 setup_code=setup_code %}

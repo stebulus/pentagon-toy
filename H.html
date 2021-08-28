@@ -1,38 +1,7 @@
 ---
 ---
-{% include tiling.html letter="H" hue_index=3 %}
-<script>
-
-const rotated90 = onValues(function (v) { return v.rot90(); });
-
-const edges = iterate({
-    R: vec(1, 1),
-    z: vec(0, 1),
-    Y: vec(-1, 0),
-    s: vec(0, -1),
-    r: vec(1, -1),
-}, rotated90, 4);
-
-function edgesFrom(p) {
-    let rotation = mod(p.x + 2*p.y, 5);
-    if (rotation == 4) rotation = 1;
-    const rotated = edges[rotation];
-    const outEdges = {}
-    for (const xfm in rotated) {
-        const neighbour = p.translate(rotated[xfm]);
-        if (inBounds(neighbour))
-            outEdges[xfm] = neighbour;
-    }
-    return outEdges;
-}
-
-function inBounds(p) {
-    const u = p.x + 2*p.y;
-    const v = -2*p.x + p.y;
-    return -6 <= u && u < 6 && -6 <= v && v < 6;
-}
-
-pentagons({
+{% capture setup_code %}
+const xfm = {
     x: ray2ray(dots[4], dots[0], dots[1], dots[0]),
     r: ray2ray(dots[0], dots[4], dots[0], dots[1]),
     R: ray2ray(dots[0], dots[1], dots[0], dots[4]),
@@ -42,7 +11,27 @@ pentagons({
     S: ray2ray(dots[2], dots[1], dots[2], dots[3]),
     Y: ray2ray(dots[1], dots[2], dots[3], dots[2]),
     z: rotate180(dots[3], dots[4]),
-}, paths(origin, edgesFrom));
+};
 
-setUpButtons();
-</script>
+const rotated90 = onValues(function (v) { return v.rot90(); });
+const edges = iterate({
+    R: vec(1, 1),
+    z: vec(0, 1),
+    Y: vec(-1, 0),
+    s: vec(0, -1),
+    r: vec(1, -1),
+}, rotated90, 4);
+
+function edgeVecs(p) {
+    let rotation = mod(p.x + 2*p.y, 5);
+    if (rotation == 4) rotation = 1;
+    return edges[rotation];
+}
+
+function inBounds(p) {
+    const u = p.x + 2*p.y;
+    const v = -2*p.x + p.y;
+    return -6 <= u && u < 6 && -6 <= v && v < 6;
+}
+{% endcapture %}
+{% include tiling.html letter="H" hue_index=3 setup_code=setup_code %}
