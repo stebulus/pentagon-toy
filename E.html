@@ -3,7 +3,8 @@
 {% include tiling.html letter="E" hue_index=1 %}
 <script>
 
-const baseEdges = {
+const edges = [];
+edges[0] = {
     f: vec(3, 5),
     a: vec(6, 2),
     c: vec(3, -3),
@@ -11,28 +12,15 @@ const baseEdges = {
     r: vec(-2, -6),
     R: vec(-2, -6),
 };
-function negate(v) { return v.negate(); }
-function swap(v) { return v.swap(); }
-function apply(vs, fs) {
-    const result = {};
-    for (const k in vs) {
-        let v = vs[k];
-        for (const f of fs) v = f(v);
-        result[k] = v;
-    }
-    return result;
-}
-const edgesByClass = [];
-edgesByClass[0] = apply(baseEdges, []);
-edgesByClass[2] = apply(baseEdges, [negate]);
-edgesByClass[6] = apply(baseEdges, [negate, swap]);
-edgesByClass[8] = apply(baseEdges, [swap]);
+edges[2] = negated(edges[0]);
+edges[6] = swapped(negated(edges[0]));
+edges[8] = swapped(edges[0]);
 
 function edgesFrom(p) {
-    const edges = edgesByClass[mod(p.y - p.x, 12)];
+    const edgeVecs = edges[mod(p.y - p.x, 12)];
     const outEdges = {}
-    for (const xfm in edges) {
-        const neighbour = p.translate(edges[xfm]);
+    for (const xfm in edgeVecs) {
+        const neighbour = p.translate(edgeVecs[xfm]);
         if (inBounds(neighbour))
             outEdges[xfm] = neighbour;
     }

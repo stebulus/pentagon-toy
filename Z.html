@@ -3,15 +3,6 @@
 {% include tiling.html letter="Z" hue_index=14 %}
 <script>
 
-function methods() {
-    const methodNames = arguments;
-    return function (x) {
-        for (const name of methodNames)
-            x = x[name]();
-        return x;
-    }
-}
-
 const xfm = {
     a: rotate180(dots[0], dots[1]),
     b: rotate180(dots[1], dots[2]),
@@ -46,7 +37,7 @@ edgeClasses[0] = {
     E: vec(-2, 0),
 };
 
-edgeClasses[1] = onValues(methods("negate"))(edgeClasses[0]);
+edgeClasses[1] = negated(edgeClasses[0]);
 
 edgeClasses[3] = {
     p: vec(0, 1),
@@ -68,14 +59,14 @@ edgeClasses[4] = {
     N: vec(1, 2),
 };
 
-edgeClasses[6] = onValues(methods("swap", "negate"))(edgeClasses[4]);
-edgeClasses[7] = onValues(methods("swap", "negate"))(edgeClasses[3]);
-edgeClasses[9] = onValues(methods("swap", "negate"))(edgeClasses[1]);
-edgeClasses[10] = onValues(methods("swap"))(edgeClasses[1]);
-edgeClasses[12] = onValues(methods("swap"))(edgeClasses[3]);
-edgeClasses[13] = onValues(methods("swap"))(edgeClasses[4]);
-edgeClasses[15] = onValues(methods("negate"))(edgeClasses[4]);
-edgeClasses[16] = onValues(methods("negate"))(edgeClasses[3]);
+edgeClasses[6] = negated(swapped(edgeClasses[4]));
+edgeClasses[7] = negated(swapped(edgeClasses[3]));
+edgeClasses[9] = negated(swapped(edgeClasses[1]));
+edgeClasses[10] = swapped(edgeClasses[1]);
+edgeClasses[12] = swapped(edgeClasses[3]);
+edgeClasses[13] = swapped(edgeClasses[4]);
+edgeClasses[15] = negated(edgeClasses[4]);
+edgeClasses[16] = negated(edgeClasses[3]);
 
 function inBounds(p) {
     return -5 <= p.x && p.x <= 5 && -4 <= p.y && p.y <= 4;

@@ -3,15 +3,6 @@
 {% include tiling.html letter="Y" hue_index=13 %}
 <script>
 
-function methods() {
-    const methodNames = arguments;
-    return function (x) {
-        for (const name of methodNames)
-            x = x[name]();
-        return x;
-    }
-}
-
 const xfm = {
     a: ray2rayflip(dots[4], dots[3], dots[1], dots[0]),
     b: rotate180(dots[1], dots[2]),
@@ -63,9 +54,9 @@ edgeClasses[2] = {
     m: vec(0, 1),
 };
 
-edgeClasses[3] = onValues(methods("negate"))(edgeClasses[2]);
-edgeClasses[4] = onValues(methods("negate"))(edgeClasses[1]);
-edgeClasses[5] = onValues(methods("negate"))(edgeClasses[0]);
+edgeClasses[3] = negated(edgeClasses[2]);
+edgeClasses[4] = negated(edgeClasses[1]);
+edgeClasses[5] = negated(edgeClasses[0]);
 
 function inBounds(p) {
     const u = p.y - 2*p.x;

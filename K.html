@@ -32,7 +32,7 @@ edgeSets[0].push({
     e: vec(0, 1),
     E: vec(0, 1),
 });
-edgeSets[0].push(onValues(function (v) { return v.negate(); })(edgeSets[0][0]));
+edgeSets[0].push(negated(edgeSets[0][0]));
 edgeSets[1].push({
     p: vec(0, 1),
     P: vec(0, 1),
@@ -43,7 +43,7 @@ edgeSets[1].push({
     t: vec(-1, -1),
     T: vec(-1, -1),
 });
-edgeSets[1].push(onValues(function (v) { return v.negate(); })(edgeSets[1][0]));
+edgeSets[1].push(negated(edgeSets[1][0]));
 
 function inBounds(p) {
     return Math.abs(p.x) <= 2 && Math.abs(p.y) <= 2

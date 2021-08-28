@@ -76,6 +76,14 @@ Vector.prototype.swap = function () {
     return vec(this.dy, this.dx);
 };
 
+Vector.prototype.flip = function () {
+    return vec(this.dx, -this.dy);
+};
+
+Vector.prototype.flop = function () {
+    return vec(-this.dx, this.dy);
+};
+
 Vector.prototype.angle = function () {
     return Math.atan2(this.dy, this.dx);
 };
@@ -310,6 +318,26 @@ function centroid(pointvars) {
         v = v.scale(1/arguments.length);
         return origin.translate(v);
     });
+}
+
+/*
+    Manipulation of edge classes
+*/
+
+function swapped(edgeClass) {
+    return onValues(function (v) { return v.swap(); })(edgeClass);
+}
+
+function negated(edgeClass) {
+    return onValues(function (v) { return v.negate(); })(edgeClass);
+}
+
+function flipped(edgeClass) {
+    return onValues(function (v) { return v.flip(); })(edgeClass);
+}
+
+function flopped(edgeClass) {
+    return onValues(function (v) { return v.flop(); })(edgeClass);
 }
 
 /*

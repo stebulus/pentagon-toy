@@ -3,15 +3,6 @@
 {% include tiling.html letter="X" hue_index=12 %}
 <script>
 
-function methods() {
-    const methodNames = arguments;
-    return function (x) {
-        for (const name of methodNames)
-            x = x[name]();
-        return x;
-    }
-}
-
 const xfm = {
     a: ray2rayflip(dots[0], dots[1], dots[0], dots[1]),
     b: ray2rayflip(dots[2], dots[3], dots[1], dots[2]),
@@ -37,7 +28,7 @@ edgeClasses[0].push({
     e: vec(-1, -1),
     f: vec(-1, 0),
 });
-edgeClasses[0].push(onValues(methods("negate"))(edgeClasses[0][0]));
+edgeClasses[0].push(negated(edgeClasses[0][0]));
 
 edgeClasses[1].push({
     a: vec(0, -1),
@@ -47,13 +38,13 @@ edgeClasses[1].push({
     S: vec(0, 1),
     f: vec(-1, 0),
 });
-edgeClasses[1].push(onValues(methods("swap", "negate"))(edgeClasses[1][0]));
+edgeClasses[1].push(negated(swapped(edgeClasses[1][0])));
 
-edgeClasses[2].push(onValues(methods("swap"))(edgeClasses[0][1]));
-edgeClasses[2].push(onValues(methods("swap"))(edgeClasses[0][0]));
+edgeClasses[2].push(swapped(edgeClasses[0][1]));
+edgeClasses[2].push(swapped(edgeClasses[0][0]));
 
-edgeClasses[3].push(onValues(methods("negate"))(edgeClasses[1][1]));
-edgeClasses[3].push(onValues(methods("negate"))(edgeClasses[1][0]));
+edgeClasses[3].push(negated(edgeClasses[1][1]));
+edgeClasses[3].push(negated(edgeClasses[1][0]));
 
 function inBounds(p) {
     return (
