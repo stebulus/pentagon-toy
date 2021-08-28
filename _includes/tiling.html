@@ -7,10 +7,18 @@
 <button disabled="true" id="shrink" type="button" class="square">&minus;</button>
 <button disabled="true" id="enlarge" type="button" class="square">+</button>
 </div>
+{%- comment %}
+    an ad hoc way to generate 15 tolerable pairs of hues
+{% endcomment %}
+{%- assign centre_hue = include.hue_index | modulo: 5 | times: 75 %}
+{%- assign other_hue_shift = include.hue_index | modulo: 3 | times: 60 | plus: 120 %}
+{%- assign other_hue = centre_hue | plus: other_hue_shift | modulo: 360 %}
 <svg id="svg" viewBox="-500 -500 1000 1000">
     <g id="magnification">
-        <g id="transformed" fill-opacity="0.5" />
-        <g id="pentagon-g" fill-opacity="0.5">
+        <g id="transformed"
+            fill-opacity="0.5" fill="hsl({{other_hue}} 100% 50%)" />
+        <g id="pentagon-g"
+            fill-opacity="0.5" fill="hsl({{centre_hue}} 100% 50%)">
             <polygon id="pentagon" stroke="black" stroke-width="1mm" />
         </g>
         <g id="vertices" />

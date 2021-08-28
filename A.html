@@ -1,6 +1,6 @@
 ---
 ---
-{% include tiling.html letter="A" %}
+{% include tiling.html letter="A" hue_index=0 %}
 <script>
 
 const edges = {
@@ -35,7 +35,7 @@ pentagons({
     h: rotate180(dots[2], dots[3]),
     u: ray2ray(dots[4], dots[3], dots[1], dots[2]),
     v: ray2ray(dots[1], dots[2], dots[4], dots[3]),
-}, paths(origin, edgesFrom), hues(0));
+}, paths(origin, edgesFrom));
 
 setUpButtons();
 </script>

@@ -1,6 +1,6 @@
 ---
 ---
-{% include tiling.html letter="K" %}
+{% include tiling.html letter="K" hue_index=5 %}
 <script>
 
 const xfm = {
@@ -60,6 +60,6 @@ function edgesFrom(p) {
     return outEdges;
 }
 
-pentagons(xfm, paths(origin, edgesFrom), hues(5));
+pentagons(xfm, paths(origin, edgesFrom));
 setUpButtons();
 </script>
