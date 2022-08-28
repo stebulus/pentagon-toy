@@ -147,6 +147,13 @@ const zero = origin.to(origin);
 // all Variables, sorted (dependencies before their dependents)
 const variables = [];
 
+function recomputeAll() {
+    for (const v of variables) {
+        v.dirty = true;
+    }
+    update();
+}
+
 /* usually created by the convenience function variable(),
    which sets the .compute property
 */
